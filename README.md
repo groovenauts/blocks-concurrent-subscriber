@@ -2,8 +2,7 @@
 
 ## Overview
 
-This is the first PR of `blocks-concurrent-subscriber`.
-It subscribes the progresses of jobs with `blocks concurrent batch board` of [magellan-blocks](https://www.magellanic-clouds.com/blocks/).
+`blocks-concurrent-subscriber` subscribes the progresses of jobs with `blocks concurrent batch board` of [magellan-blocks](https://www.magellanic-clouds.com/blocks/).
 When the progresses are notified, `blocks-concurrent-subscriber` updates the status of the job and inserts the logs on mysql.
 
 `blocks-concurrent-subscriber` access to `blocks-concurrent-batch-agent` to get subscriptions to pull messages.
