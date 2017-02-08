@@ -21,11 +21,13 @@ type SqlStore struct {
 }
 
 func (ss *SqlStore) setup(ctx context.Context, driver, datasource string) (func() error, error) {
-	db, err := sql.Open("mysql", datasource)
+	fmt.Printf("Connecting to %v database by %v\n", driver, datasource)
+	db, err := sql.Open(driver, datasource)
 	if err != nil {
 		fmt.Println("Failed to get database connection for ", datasource, " cause of ", err)
 		return nil, err
 	}
+	ss.db = db
 	return db.Close, nil
 }
 
@@ -60,10 +62,12 @@ func (ss *SqlStore) save(ctx context.Context, pipeline, msg_id string, progress 
 func (ss *SqlStore) transaction(impl func(tx *sql.Tx) error) (err error) {
 	tx, err := ss.db.Begin()
 	if err != nil {
+		fmt.Printf("Failed to begin transaction cause of %v\n", err)
 		return err
 	}
 	defer func() {
 		if r := recover(); r != nil {
+			fmt.Printf("recover in SqlStore.transaction r: %v\n", r)
 			tx.Rollback()
 			if _, ok := r.(runtime.Error); ok {
 				panic(r)

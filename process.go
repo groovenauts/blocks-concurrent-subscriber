@@ -43,7 +43,6 @@ func (p *Process) execute(ctx context.Context) error {
 		fmt.Println("Process.execute() err: %v", err)
 		return err
 	}
-	fmt.Println("Process.execute() subscriptions: %v", subscriptions)
 	for _, sub := range subscriptions {
 		p.pullAndSave(ctx, sub)
 	}
@@ -52,8 +51,6 @@ func (p *Process) execute(ctx context.Context) error {
 
 func (p *Process) pullAndSave(ctx context.Context, subscription *Subscription) error {
 	err := p.subscriber.subscribe(ctx, subscription, func(m *pubsub.Message) error {
-		fmt.Println("Process.pullAndSave message: %v", m)
-
 		// https://github.com/groovenauts/magellan-gcs-proxy/blob/master/lib/magellan/gcs/proxy/progress_notification.rb#L24
 		msg_id := m.Attributes["job_message_id"]
 		progress, err := strconv.Atoi(m.Attributes["progress"])
