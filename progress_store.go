@@ -11,6 +11,11 @@ import (
 	"golang.org/x/net/context"
 )
 
+const (
+	SQL_UPDATE_JOBS = "UPDATE pipeline_jobs SET status = ? WHERE message_id = ? AND status < ?"
+	SQL_INSERT_LOGS = "INSERT INTO pipeline_job_logs (pipeline, message_id, status, publish_time) VALUES (?, ?, ?, ?)"
+)
+
 type SqlStore struct {
 	db *sql.DB
 }

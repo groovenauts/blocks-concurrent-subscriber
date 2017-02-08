@@ -131,11 +131,6 @@ func (p *Process) execute(ctx context.Context) error {
 	return nil
 }
 
-const (
-	SQL_UPDATE_JOBS = "UPDATE pipeline_jobs SET status = ? WHERE message_id = ? AND status < ?"
-	SQL_INSERT_LOGS = "INSERT INTO pipeline_job_logs (pipeline, message_id, status, publish_time) VALUES (?, ?, ?, ?)"
-)
-
 func (p *Process) pullAndSave(ctx context.Context, subscription *Subscription) error {
 	err := p.subscriber.subscribe(ctx, subscription, func(m *pubsub.Message) error {
 		// https://github.com/groovenauts/magellan-gcs-proxy/blob/master/lib/magellan/gcs/proxy/progress_notification.rb#L24
