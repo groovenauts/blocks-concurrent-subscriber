@@ -9,15 +9,19 @@ import (
 	"golang.org/x/net/context"
 )
 
+type HttpRequester interface {
+	Do(req *http.Request) (*http.Response, error)
+}
+
 type DefaultAgentClient struct{
-	httpClient   *http.Client
+	httpRequester HttpRequester
 	httpUrl      string
 	httpToken    string
 }
 
 func (ac *DefaultAgentClient) getSubscriptions(ctx context.Context) ([]*Subscription, error) {
-	if ac.httpClient == nil {
-		ac.httpClient = new(http.Client)
+	if ac.httpRequester == nil {
+		ac.httpRequester = new(http.Client)
 	}
 
 	req, err := http.NewRequest("GET", ac.httpUrl+"/pipelines/subscriptions", nil)
@@ -25,7 +29,7 @@ func (ac *DefaultAgentClient) getSubscriptions(ctx context.Context) ([]*Subscrip
 		return nil, err
 	}
 	req.Header.Set("Authorization", "Bearer "+ac.httpToken)
-	resp, err := ac.httpClient.Do(req)
+	resp, err := ac.httpRequester.Do(req)
 	if err != nil {
 		return nil, err
 	}
