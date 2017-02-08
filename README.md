@@ -19,7 +19,7 @@ $ go get github.com/groovenauts/blocks-concurrent-subscriber
 $ blocks-concurrent-subscriber \
   --project [Your GCP Project] \
   --datasource [Datasource string to Your MySQL] \
-  --agent-root-ur [URL to your blocks-concurrent-batch-agent] \
+  --agent-root-url [URL to your blocks-concurrent-batch-agent] \
   --agent-token [Token of your blocks-concurrent-batch-agent]
 ```
 
@@ -33,7 +33,7 @@ $ blocks-concurrent-subscriber \
 
 See https://github.com/go-sql-driver/mysql#usage for more detail.
 
-### `--agent-root-ur`
+### `--agent-root-url`
 
 This is an URL to the blocks-concurrent-batch-agent you deploy to GAE.
 
