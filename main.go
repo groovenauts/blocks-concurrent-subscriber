@@ -14,7 +14,6 @@ import (
 	"github.com/urfave/cli"
 
 	"golang.org/x/net/context"
-	"google.golang.org/api/iterator"
 )
 
 func main() {
@@ -66,9 +65,10 @@ func executeCommand(c *cli.Context) error {
 	interval := c.Uint("interval")
 
 	ctx := context.Background()
-	pubsubClient, err := pubsub.NewClient(ctx, proj)
+
+	pubsubClient := &PubsubClient{}
+	err := pubsubClient.setup(ctx, proj)
 	if err != nil {
-		fmt.Println("Failed to get new pubsubClient for ", proj, " cause of ", err)
 		os.Exit(1)
 	}
 
@@ -85,7 +85,7 @@ func executeCommand(c *cli.Context) error {
 				httpUrl:   c.String("agent-url"),
 				httpToken: c.String("agent-token"),
 			},
-			pubsubClient: pubsubClient,
+			subscriber: pubsubClient,
 			db:           db,
 			command_args: c.Args(),
 		}
@@ -101,9 +101,13 @@ type AgentApi interface {
 	getSubscriptions(ctx context.Context) ([]*Subscription, error)
 }
 
+type MessageSubscriber interface {
+	subscribe(ctx context.Context, subscription *Subscription, f func(msg *pubsub.Message) error ) error
+}
+
 type Process struct {
 	agentApi     AgentApi
-	pubsubClient *pubsub.Client
+	subscriber   MessageSubscriber
 	db           *sql.DB
 	command_args []string
 }
@@ -130,25 +134,7 @@ const (
 )
 
 func (p *Process) pullAndSave(ctx context.Context, subscription *Subscription) error {
-	sub := p.pubsubClient.Subscription(subscription.Name)
-	it, err := sub.Pull(ctx)
-	if err != nil {
-		fmt.Println("Failed to pull from ", subscription, " cause of ", err)
-		return err
-	}
-	// Ensure that the iterator is closed down cleanly.
-	defer it.Stop()
-
-	for {
-		m, err := it.Next()
-		if err == iterator.Done {
-			break
-		}
-		if err != nil {
-			fmt.Println("Failed to get pulled message from ", subscription, " cause of ", err)
-			return err
-		}
-
+	err := p.subscriber.subscribe(ctx, subscription, func(m *pubsub.Message) error {
 		// https://github.com/groovenauts/magellan-gcs-proxy/blob/master/lib/magellan/gcs/proxy/progress_notification.rb#L24
 		msg_id := m.Attributes["job_message_id"]
 		progress, err := strconv.Atoi(m.Attributes["progress"])
@@ -186,12 +172,10 @@ func (p *Process) pullAndSave(ctx context.Context, subscription *Subscription) e
 		})
 		if err != nil {
 			fmt.Println("Failed to begin a transaction message_id: %v to status: %v cause of %v", msg_id, progress, err)
-			return err
 		}
-
-		m.Done(true)
-	}
-	return nil
+		return err
+	})
+	return err
 }
 
 func (p *Process) transaction(impl func(tx *sql.Tx) error) error {
