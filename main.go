@@ -178,22 +178,26 @@ func (p *Process) pullAndSave(ctx context.Context, subscription *Subscription) e
 	return err
 }
 
-func (p *Process) transaction(impl func(tx *sql.Tx) error) error {
+// Use "err" for returned variable name in order to return the error on recover.
+func (p *Process) transaction(impl func(tx *sql.Tx) error) (err error) {
 	tx, err := p.db.Begin()
 	if err != nil {
 		return err
 	}
 	defer func() {
-		if err := recover(); err != nil {
+		if r := recover(); r != nil {
 			tx.Rollback()
+			if _, ok := r.(runtime.Error); ok {
+				panic(r)
+			}
+			err = r.(error)
 		}
 	}()
 	err = impl(tx)
 	if err == nil {
 		tx.Commit()
-		return nil
 	} else {
 		tx.Rollback()
-		return err
 	}
+	return err
 }
