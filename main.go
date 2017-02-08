@@ -1,7 +1,6 @@
 package main
 
 import (
-	"database/sql"
 	"fmt"
 	"os"
 	"os/exec"
@@ -10,7 +9,6 @@ import (
 
 	"cloud.google.com/go/pubsub"
 
-	_ "github.com/go-sql-driver/mysql"
 	"github.com/urfave/cli"
 
 	"golang.org/x/net/context"
@@ -72,12 +70,12 @@ func executeCommand(c *cli.Context) error {
 		os.Exit(1)
 	}
 
-	db, err := sql.Open("mysql", c.String("datasource"))
+	store := &SqlStore{}
+	cb, err := store.setup(ctx, "mysql", c.String("datasource"))
 	if err != nil {
-		fmt.Println("Failed to get database connection for ", c.String("datasource"), " cause of ", err)
 		os.Exit(1)
 	}
-	defer db.Close()
+	defer cb()
 
 	for {
 		p := &Process{
@@ -85,8 +83,8 @@ func executeCommand(c *cli.Context) error {
 				httpUrl:   c.String("agent-url"),
 				httpToken: c.String("agent-token"),
 			},
-			subscriber: pubsubClient,
-			db:           db,
+			subscriber:   pubsubClient,
+			messageStore: store,
 			command_args: c.Args(),
 		}
 		p.execute(ctx)
@@ -105,10 +103,15 @@ type MessageSubscriber interface {
 	subscribe(ctx context.Context, subscription *Subscription, f func(msg *pubsub.Message) error ) error
 }
 
+type MessageStore interface {
+	save(ctx context.Context, pipeline, msg_id string, progress int, publishTime time.Time, f func() error ) error
+}
+
+
 type Process struct {
 	agentApi     AgentApi
 	subscriber   MessageSubscriber
-	db           *sql.DB
+	messageStore MessageStore
 	command_args []string
 }
 
@@ -143,19 +146,7 @@ func (p *Process) pullAndSave(ctx context.Context, subscription *Subscription) e
 			return err
 		}
 
-		err = p.transaction(func(tx *sql.Tx) error {
-			_, err = tx.Exec(SQL_UPDATE_JOBS, progress, msg_id, progress)
-			if err != nil {
-				fmt.Println("Failed to update pipeline_jobs message_id: %v to status: %v cause of %v", msg_id, progress, err)
-				return err
-			}
-
-			_, err = tx.Exec(SQL_INSERT_LOGS, subscription.Pipeline, msg_id, progress, m.PublishTime)
-			if err != nil {
-				fmt.Println("Failed to insert pipeline_job_logs pipeline: %v, message_id: %v, status: %v cause of %v", subscription.Pipeline, msg_id, progress, err)
-				return err
-			}
-
+		err = p.messageStore.save(ctx, subscription.Pipeline, msg_id, progress, m.PublishTime, func() error{
 			// Execute command to notify
 			if len(p.command_args) > 0 {
 				name := p.command_args[0]
@@ -164,40 +155,11 @@ func (p *Process) pullAndSave(ctx context.Context, subscription *Subscription) e
 				cmd.Stdout = os.Stdout
 				cmd.Stderr = os.Stderr
 				err = cmd.Run()
-				if err != nil {
-					return err
-				}
+				return err
 			}
 			return nil
 		})
-		if err != nil {
-			fmt.Println("Failed to begin a transaction message_id: %v to status: %v cause of %v", msg_id, progress, err)
-		}
 		return err
 	})
-	return err
-}
-
-// Use "err" for returned variable name in order to return the error on recover.
-func (p *Process) transaction(impl func(tx *sql.Tx) error) (err error) {
-	tx, err := p.db.Begin()
-	if err != nil {
-		return err
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			tx.Rollback()
-			if _, ok := r.(runtime.Error); ok {
-				panic(r)
-			}
-			err = r.(error)
-		}
-	}()
-	err = impl(tx)
-	if err == nil {
-		tx.Commit()
-	} else {
-		tx.Rollback()
-	}
 	return err
 }
