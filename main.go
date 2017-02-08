@@ -2,10 +2,7 @@ package main
 
 import (
 	"database/sql"
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"net/http"
 	"os"
 	"os/exec"
 	"strconv"
@@ -22,8 +19,8 @@ import (
 
 func main() {
 	app := cli.NewApp()
-	app.Name = "pubsub-devsub"
-	app.Usage = "github.com/akm/pubsub-devsub"
+	app.Name = "blocks-concurrent-subscriber"
+	app.Usage = "github.com/groovenauts/blocks-concurrent-subscriber"
 	app.Version = Version
 
 	app.Flags = []cli.Flag{
@@ -68,8 +65,6 @@ func executeCommand(c *cli.Context) error {
 	}
 	interval := c.Uint("interval")
 
-	httpClient := new(http.Client)
-
 	ctx := context.Background()
 	pubsubClient, err := pubsub.NewClient(ctx, proj)
 	if err != nil {
@@ -86,9 +81,10 @@ func executeCommand(c *cli.Context) error {
 
 	for {
 		p := &Process{
-			httpClient:   httpClient,
-			httpUrl:      c.String("agent-url"),
-			httpToken:    c.String("agent-token"),
+			agentApi:     &DefaultAgentClient{
+				httpUrl:   c.String("agent-url"),
+				httpToken: c.String("agent-token"),
+			},
 			pubsubClient: pubsubClient,
 			db:           db,
 			command_args: c.Args(),
@@ -101,10 +97,12 @@ func executeCommand(c *cli.Context) error {
 	return nil
 }
 
+type AgentApi interface {
+	getSubscriptions(ctx context.Context) ([]*Subscription, error)
+}
+
 type Process struct {
-	httpClient   *http.Client
-	httpUrl      string
-	httpToken    string
+	agentApi     AgentApi
 	pubsubClient *pubsub.Client
 	db           *sql.DB
 	command_args []string
@@ -116,7 +114,7 @@ type Subscription struct {
 }
 
 func (p *Process) execute(ctx context.Context) error {
-	subscriptions, err := p.getSubscriptions(ctx)
+	subscriptions, err := p.agentApi.getSubscriptions(ctx)
 	if err != nil {
 		return err
 	}
@@ -124,35 +122,6 @@ func (p *Process) execute(ctx context.Context) error {
 		p.pullAndSave(ctx, sub)
 	}
 	return nil
-}
-
-func (p *Process) getSubscriptions(ctx context.Context) ([]*Subscription, error) {
-	req, err := http.NewRequest("GET", p.httpUrl+"/pipelines/subscriptions", nil)
-	if err != nil {
-		return nil, err
-	}
-	req.Header.Set("Authorization", "Bearer "+p.httpToken)
-	resp, err := p.httpClient.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	byteArray, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	var subscriptions []Subscription
-	err = json.Unmarshal(byteArray, &subscriptions)
-	if err != nil {
-		return nil, err
-	}
-	result := []*Subscription{}
-	for _, subscription := range subscriptions {
-		result = append(result, &subscription)
-	}
-	return result, nil
 }
 
 const (
