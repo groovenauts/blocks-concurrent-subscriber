@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
@@ -34,6 +35,7 @@ func (ac *DefaultAgentClient) getSubscriptions(ctx context.Context) ([]*Subscrip
 	if err != nil {
 		return nil, err
 	}
+	fmt.Printf("DefaultAgentClient.getSubscriptions()\n%v\n", string(byteArray))
 
 	var subscriptions []Subscription
 	err = json.Unmarshal(byteArray, &subscriptions)
