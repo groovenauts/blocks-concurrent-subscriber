@@ -9,9 +9,8 @@ When the progresses are notified, `blocks-concurrent-subscriber` updates the sta
 
 ## Install
 
-```bash
-$ go get github.com/groovenauts/blocks-concurrent-subscriber
-```
+Download the file from https://github.com/groovenauts/blocks-concurrent-subscriber/releases
+and put it somewhere on PATH.
 
 ## Usage
 
