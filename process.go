@@ -60,9 +60,9 @@ func (p *Process) pullAndSave(ctx context.Context, subscription *Subscription) e
 		}
 		// https://cloud.google.com/pubsub/docs/reference/rest/v1/PubsubMessage
 		// A timestamp in RFC3339 UTC "Zulu" format, accurate to nanoseconds. Example: "2014-10-02T15:01:23.045123456Z".
-		time, err := time.Parse(time.RFC3339, m.PublishTime)
+		t, err := time.Parse(time.RFC3339, m.PublishTime)
 
-		err = p.messageStore.save(ctx, subscription.Pipeline, msg_id, progress, time, func() error {
+		err = p.messageStore.save(ctx, subscription.Pipeline, msg_id, progress, t, func() error {
 			// Execute command to notify
 			if len(p.command_args) > 0 {
 				name := p.command_args[0]
