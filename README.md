@@ -1,5 +1,7 @@
 # blocks-concurrent-batch-subscriber
 
+[![Build Status](https://secure.travis-ci.org/groovenauts/blocks-concurrent-subscriber.png)](https://travis-ci.org/groovenauts/blocks-concurrent-subscriber)
+
 ## Overview
 
 `blocks-concurrent-subscriber` subscribes the progresses of jobs with `blocks concurrent batch board` of [magellan-blocks](https://www.magellanic-clouds.com/blocks/).
