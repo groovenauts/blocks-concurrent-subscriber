@@ -18,7 +18,6 @@ and put it somewhere on PATH.
 
 ```bash
 $ blocks-concurrent-subscriber \
-  --project [Your GCP Project] \
   --datasource [Datasource string to Your MySQL] \
   --agent-root-url [URL to your blocks-concurrent-batch-agent] \
   --agent-token [Token of your blocks-concurrent-batch-agent]
