@@ -35,7 +35,6 @@ func (pp *pubsubPuller) Acknowledge(subscription, ackId string) (*pubsub.Empty, 
 	return pp.subscriptionsService.Acknowledge(subscription, ackRequest).Do()
 }
 
-
 func (ps *PubsubSubscriber) setup(ctx context.Context) error {
 	// https://github.com/google/google-api-go-client#application-default-credentials-example
 	client, err := google.DefaultClient(ctx, pubsub.PubsubScope)
@@ -55,7 +54,7 @@ func (ps *PubsubSubscriber) setup(ctx context.Context) error {
 	return nil
 }
 
-func (ps *PubsubSubscriber) subscribe(ctx context.Context, subscription *Subscription, f func(msg *pubsub.ReceivedMessage) error ) error {
+func (ps *PubsubSubscriber) subscribe(ctx context.Context, subscription *Subscription, f func(msg *pubsub.ReceivedMessage) error) error {
 	pullRequest := &pubsub.PullRequest{
 		ReturnImmediately: false,
 		// MaxMessages: 1,

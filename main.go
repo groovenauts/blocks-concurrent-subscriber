@@ -64,7 +64,7 @@ func executeCommand(c *cli.Context) error {
 
 	for {
 		p := &Process{
-			agentApi:     &DefaultAgentClient{
+			agentApi: &DefaultAgentClient{
 				httpUrl:   c.String("agent-root-url"),
 				httpToken: c.String("agent-token"),
 			},

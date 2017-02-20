@@ -17,13 +17,12 @@ type AgentApi interface {
 }
 
 type MessageSubscriber interface {
-	subscribe(ctx context.Context, subscription *Subscription, f func(msg *pubsub.ReceivedMessage) error ) error
+	subscribe(ctx context.Context, subscription *Subscription, f func(msg *pubsub.ReceivedMessage) error) error
 }
 
 type MessageStore interface {
-	save(ctx context.Context, pipeline, msg_id string, progress int, publishTime time.Time, f func() error ) error
+	save(ctx context.Context, pipeline, msg_id string, progress int, publishTime time.Time, f func() error) error
 }
-
 
 type Process struct {
 	agentApi     AgentApi
@@ -63,7 +62,7 @@ func (p *Process) pullAndSave(ctx context.Context, subscription *Subscription) e
 		// A timestamp in RFC3339 UTC "Zulu" format, accurate to nanoseconds. Example: "2014-10-02T15:01:23.045123456Z".
 		time, err := time.Parse(time.RFC3339, m.PublishTime)
 
-		err = p.messageStore.save(ctx, subscription.Pipeline, msg_id, progress, time, func() error{
+		err = p.messageStore.save(ctx, subscription.Pipeline, msg_id, progress, time, func() error {
 			// Execute command to notify
 			if len(p.command_args) > 0 {
 				name := p.command_args[0]
