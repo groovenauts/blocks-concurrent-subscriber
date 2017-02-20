@@ -1,26 +1,17 @@
-hash: f7118f106009f1497de7ca5032fbe39a3c97411702d90891b4495520a654e3eb
-updated: 2017-02-06T20:23:44.809903524+09:00
+hash: 731c43addfcd2c75d5cd50850a68895bbe4ed84684d7e24821915f38a9e3037f
+updated: 2017-02-20T20:23:04.67773+09:00
 imports:
 - name: cloud.google.com/go
   version: 81b7822b1e798e8f17bf64b59512a5be4097e966
   subpackages:
   - compute/metadata
-  - iam
   - internal
-  - pubsub
-  - pubsub/apiv1
 - name: github.com/go-sql-driver/mysql
   version: 2e00b5cd70399450106cec6431c2e2ce3cae5034
 - name: github.com/golang/protobuf
   version: 8ee79997227bf9b34611aee7946ae64735e6fd93
   subpackages:
   - proto
-  - protoc-gen-go/descriptor
-  - ptypes
-  - ptypes/any
-  - ptypes/duration
-  - ptypes/empty
-  - ptypes/timestamp
 - name: github.com/googleapis/gax-go
   version: da06d194a00e19ce00d9011a13931c3f6f6887c7
 - name: github.com/urfave/cli
@@ -46,12 +37,12 @@ imports:
 - name: google.golang.org/api
   version: b9d03e6e091e36f9a089515bc84cf14c2d199c4c
   subpackages:
-  - googleapi/transport
-  - internal
+  - gensupport
+  - googleapi
+  - googleapi/internal/uritemplates
   - iterator
-  - option
-  - support/bundler
-  - transport
+  - pubsub
+  - pubsub/v1
 - name: google.golang.org/appengine
   version: 08a149cfaee099e6ce4be01c0113a78c85ee1dee
   subpackages:
@@ -62,22 +53,13 @@ imports:
   - internal/log
   - internal/modules
   - internal/remote_api
-  - internal/socket
   - internal/urlfetch
-  - socket
   - urlfetch
-- name: google.golang.org/genproto
-  version: b3e7c2fb04031add52c4817f53f43757ccbf9c18
-  subpackages:
-  - googleapis/api/annotations
-  - googleapis/iam/v1
-  - googleapis/pubsub/v1
 - name: google.golang.org/grpc
   version: 50955793b0183f9de69bd78e2ec251cf20aab121
   subpackages:
   - codes
   - credentials
-  - credentials/oauth
   - grpclog
   - internal
   - metadata
@@ -86,4 +68,16 @@ imports:
   - stats
   - tap
   - transport
-testImports: []
+testImports:
+- name: github.com/davecgh/go-spew
+  version: 04cdfd42973bb9c8589fd6a731800cf222fde1a9
+  subpackages:
+  - spew
+- name: github.com/pmezard/go-difflib
+  version: d8ed2627bdf02c080bf22230dbb337003b7aba2d
+  subpackages:
+  - difflib
+- name: github.com/stretchr/testify
+  version: 4d4bfba8f1d1027c4fdbe371823030df51419987
+  subpackages:
+  - assert
