@@ -5,11 +5,11 @@ import (
 	"testing"
 	"time"
 
-	"cloud.google.com/go/pubsub"
-
 	"github.com/stretchr/testify/assert"
 
 	"golang.org/x/net/context"
+
+	pubsub "google.golang.org/api/pubsub/v1"
 )
 
 type DummyAgentApi struct {}
@@ -20,13 +20,15 @@ func (dh *DummyAgentApi) getSubscriptions(ctx context.Context) ([]*Subscription,
 }
 
 type DummySubscriber struct{}
-func (ds *DummySubscriber) subscribe(ctx context.Context, subscription *Subscription, f func(msg *pubsub.Message) error ) error {
-	msg := &pubsub.Message{
-		Attributes: map[string]string{
-			"job_message_id": "0123456789",
-			"progress": "14",
+func (ds *DummySubscriber) subscribe(ctx context.Context, subscription *Subscription, f func(msg *pubsub.ReceivedMessage) error ) error {
+	msg := &pubsub.ReceivedMessage{
+		Message: &pubsub.PubsubMessage{
+			Attributes: map[string]string{
+				"job_message_id": "0123456789",
+				"progress": "14",
+			},
+			PublishTime: time.Now().Format(time.RFC3339),
 		},
-		PublishTime: time.Now(),
 	}
 	return f(msg)
 }

@@ -7,9 +7,9 @@ import (
 	"strconv"
 	"time"
 
-	"cloud.google.com/go/pubsub"
-
 	"golang.org/x/net/context"
+
+	pubsub "google.golang.org/api/pubsub/v1"
 )
 
 type AgentApi interface {
@@ -17,7 +17,7 @@ type AgentApi interface {
 }
 
 type MessageSubscriber interface {
-	subscribe(ctx context.Context, subscription *Subscription, f func(msg *pubsub.Message) error ) error
+	subscribe(ctx context.Context, subscription *Subscription, f func(msg *pubsub.ReceivedMessage) error ) error
 }
 
 type MessageStore interface {
@@ -50,16 +50,20 @@ func (p *Process) execute(ctx context.Context) error {
 }
 
 func (p *Process) pullAndSave(ctx context.Context, subscription *Subscription) error {
-	err := p.subscriber.subscribe(ctx, subscription, func(m *pubsub.Message) error {
+	err := p.subscriber.subscribe(ctx, subscription, func(recvMsg *pubsub.ReceivedMessage) error {
+		m := recvMsg.Message
 		// https://github.com/groovenauts/magellan-gcs-proxy/blob/master/lib/magellan/gcs/proxy/progress_notification.rb#L24
 		msg_id := m.Attributes["job_message_id"]
 		progress, err := strconv.Atoi(m.Attributes["progress"])
 		if err != nil {
-			fmt.Println("Failed to convert %v to int message_id: %v cause of %v", m.Attributes["progress"], msg_id, err)
+			fmt.Printf("Failed to convert %v to int message_id: %v cause of %v", m.Attributes["progress"], msg_id, err)
 			return err
 		}
+		// https://cloud.google.com/pubsub/docs/reference/rest/v1/PubsubMessage
+		// A timestamp in RFC3339 UTC "Zulu" format, accurate to nanoseconds. Example: "2014-10-02T15:01:23.045123456Z".
+		time, err := time.Parse(time.RFC3339, m.PublishTime)
 
-		err = p.messageStore.save(ctx, subscription.Pipeline, msg_id, progress, m.PublishTime, func() error{
+		err = p.messageStore.save(ctx, subscription.Pipeline, msg_id, progress, time, func() error{
 			// Execute command to notify
 			if len(p.command_args) > 0 {
 				name := p.command_args[0]

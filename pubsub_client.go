@@ -1,52 +1,79 @@
 package main
 
 import (
-	"fmt"
+	"log"
 
-	"cloud.google.com/go/pubsub"
+	pubsub "google.golang.org/api/pubsub/v1"
 
 	"golang.org/x/net/context"
-	"google.golang.org/api/iterator"
+	"golang.org/x/oauth2/google"
 )
 
-type PubsubClient struct{
-	impl *pubsub.Client
+type (
+	Puller interface {
+		Pull(subscription string, pullrequest *pubsub.PullRequest) (*pubsub.PullResponse, error)
+		Acknowledge(subscription, ackId string) (*pubsub.Empty, error)
+	}
+
+	pubsubPuller struct {
+		subscriptionsService *pubsub.ProjectsSubscriptionsService
+	}
+
+	PubsubSubscriber struct {
+		puller Puller
+	}
+)
+
+func (pp *pubsubPuller) Pull(subscription string, pullrequest *pubsub.PullRequest) (*pubsub.PullResponse, error) {
+	return pp.subscriptionsService.Pull(subscription, pullrequest).Do()
 }
 
-func (pc *PubsubClient) setup(ctx context.Context, proj string) error {
-	client, err := pubsub.NewClient(ctx, proj)
+func (pp *pubsubPuller) Acknowledge(subscription, ackId string) (*pubsub.Empty, error) {
+	ackRequest := &pubsub.AcknowledgeRequest{
+		AckIds: []string{ackId},
+	}
+	return pp.subscriptionsService.Acknowledge(subscription, ackRequest).Do()
+}
+
+
+func (ps *PubsubSubscriber) setup(ctx context.Context) error {
+	// https://github.com/google/google-api-go-client#application-default-credentials-example
+	client, err := google.DefaultClient(ctx, pubsub.PubsubScope)
 	if err != nil {
-		fmt.Println("Failed to get new pubsubClient for ", proj, " cause of ", err)
+		log.Printf("Failed to create DefaultClient\n")
 		return err
 	}
-	pc.impl = client
+
+	// Creates a pubsubClient
+	service, err := pubsub.New(client)
+	if err != nil {
+		log.Printf("Failed to create pubsub.Service with %v: %v\n", client, err)
+		return err
+	}
+
+	ps.puller = &pubsubPuller{service.Projects.Subscriptions}
 	return nil
 }
 
-func (pc *PubsubClient) subscribe(ctx context.Context, subscription *Subscription, f func(msg *pubsub.Message) error ) error {
-
-	sub := pc.impl.Subscription(subscription.Name)
-	it, err := sub.Pull(ctx)
+func (ps *PubsubSubscriber) subscribe(ctx context.Context, subscription *Subscription, f func(msg *pubsub.ReceivedMessage) error ) error {
+	pullRequest := &pubsub.PullRequest{
+		ReturnImmediately: false,
+		// MaxMessages: 1,
+	}
+	res, err := ps.puller.Pull(subscription.Name, pullRequest)
 	if err != nil {
-		fmt.Println("Failed to pull from ", subscription, " cause of ", err)
+		log.Printf("Failed to pull: %v\n", err)
 		return err
 	}
-	// Ensure that the iterator is closed down cleanly.
-	defer it.Stop()
-
-	for {
-		m, err := it.Next()
-		if err == iterator.Done {
-			break
+	for _, receivedMessage := range res.ReceivedMessages {
+		err := f(receivedMessage)
+		if err == nil {
+			if _, err = ps.puller.Acknowledge(subscription.Name, receivedMessage.AckId); err != nil {
+				log.Fatalf("Failed to acknowledge for message: %v cause of %v", receivedMessage, err)
+			}
+		} else {
+			log.Printf("the received request process returns error: %v", err)
 		}
-		if err != nil {
-			fmt.Println("Failed to get pulled message from ", subscription, " cause of ", err)
-			return err
-		}
-
-		err = f(m)
-
-		m.Done(err == nil)
 	}
 	return nil
 }

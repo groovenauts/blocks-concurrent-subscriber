@@ -17,11 +17,6 @@ func main() {
 
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
-			Name:   "project",
-			Usage:  "GCS Project ID",
-			EnvVar: "GCP_PROJECT,PROJECT",
-		},
-		cli.StringFlag{
 			Name:   "datasource",
 			Usage:  "Data source name to your database",
 			EnvVar: "DATASOURCE",
@@ -50,17 +45,12 @@ func main() {
 
 func executeCommand(c *cli.Context) error {
 
-	proj := c.String("project")
-	if proj == "" {
-		cli.ShowAppHelp(c)
-		os.Exit(1)
-	}
 	interval := c.Uint("interval")
 
 	ctx := context.Background()
 
-	pubsubClient := &PubsubClient{}
-	err := pubsubClient.setup(ctx, proj)
+	pubsubSubscriber := &PubsubSubscriber{}
+	err := pubsubSubscriber.setup(ctx)
 	if err != nil {
 		os.Exit(1)
 	}
@@ -78,7 +68,7 @@ func executeCommand(c *cli.Context) error {
 				httpUrl:   c.String("agent-root-url"),
 				httpToken: c.String("agent-token"),
 			},
-			subscriber:   pubsubClient,
+			subscriber:   pubsubSubscriber,
 			messageStore: store,
 			command_args: c.Args(),
 		}
