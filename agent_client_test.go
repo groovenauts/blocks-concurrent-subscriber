@@ -11,7 +11,7 @@ import (
 	"golang.org/x/net/context"
 )
 
-type DummyHttp struct {}
+type DummyHttp struct{}
 
 func (dh *DummyHttp) Do(req *http.Request) (*http.Response, error) {
 	resp := `[{"pipeline":"pipeline01","subscription":"pipeline01-progress-subscription"}]`
@@ -23,8 +23,8 @@ func (dh *DummyHttp) Do(req *http.Request) (*http.Response, error) {
 func TestGetSubscriptions(t *testing.T) {
 	ac := &DefaultAgentClient{
 		httpRequester: &DummyHttp{},
-		httpUrl: "http://somewhere",
-		httpToken: "DUMMY-TOKEN",
+		httpUrl:       "http://somewhere",
+		httpToken:     "DUMMY-TOKEN",
 	}
 	ctx := context.Background()
 	subscriptions, err := ac.getSubscriptions(ctx)

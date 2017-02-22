@@ -1,13 +1,17 @@
 package: github.com/groovenauts/blocks-concurrent-subscriber
 import:
-- package: cloud.google.com/go
-  subpackages:
-  - pubsub
 - package: github.com/go-sql-driver/mysql
 - package: github.com/urfave/cli
 - package: golang.org/x/net
   subpackages:
   - context
+  - context/ctxhttp
 - package: google.golang.org/api
   subpackages:
+  - pubsub
+  - pubsub/v1
   - iterator
+testImport:
+- package: github.com/stretchr/testify
+  subpackages:
+  - assert

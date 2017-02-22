@@ -1,0 +1,17 @@
+sudo: false
+language: go
+go:
+  - 1.6.4
+addons:
+  apt:
+    sources:
+      - sourceline: 'ppa:masterminds/glide'
+    packages:
+      - glide
+before_install:
+  - test -d $GOPATH/bin || mkdir -p $GOPATH/bin
+install:
+  ## Install dependencies
+  - glide install
+script:
+  - go test

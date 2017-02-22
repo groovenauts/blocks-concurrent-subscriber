@@ -5,14 +5,15 @@ import (
 	"testing"
 	"time"
 
-	"cloud.google.com/go/pubsub"
-
 	"github.com/stretchr/testify/assert"
 
 	"golang.org/x/net/context"
+
+	pubsub "google.golang.org/api/pubsub/v1"
 )
 
-type DummyAgentApi struct {}
+type DummyAgentApi struct{}
+
 func (dh *DummyAgentApi) getSubscriptions(ctx context.Context) ([]*Subscription, error) {
 	return []*Subscription{
 		&Subscription{Pipeline: "pipeline01", Name: "pipeline01-progress-subscription"},
@@ -20,19 +21,23 @@ func (dh *DummyAgentApi) getSubscriptions(ctx context.Context) ([]*Subscription,
 }
 
 type DummySubscriber struct{}
-func (ds *DummySubscriber) subscribe(ctx context.Context, subscription *Subscription, f func(msg *pubsub.Message) error ) error {
-	msg := &pubsub.Message{
-		Attributes: map[string]string{
-			"job_message_id": "0123456789",
-			"progress": "14",
+
+func (ds *DummySubscriber) subscribe(ctx context.Context, subscription *Subscription, f func(msg *pubsub.ReceivedMessage) error) error {
+	msg := &pubsub.ReceivedMessage{
+		Message: &pubsub.PubsubMessage{
+			Attributes: map[string]string{
+				"job_message_id": "0123456789",
+				"progress":       "14",
+			},
+			PublishTime: time.Now().Format(time.RFC3339),
 		},
-		PublishTime: time.Now(),
 	}
 	return f(msg)
 }
 
 type DummyStore struct{}
-func (ds *DummyStore) save(ctx context.Context, pipeline, msg_id string, progress int, publishTime time.Time, f func() error ) error {
+
+func (ds *DummyStore) save(ctx context.Context, pipeline, msg_id string, progress int, publishTime time.Time, f func() error) error {
 	if "pipeline01" != pipeline {
 		return fmt.Errorf("pipeline should be pipeline01 but was %v", pipeline)
 	}
@@ -47,8 +52,8 @@ func (ds *DummyStore) save(ctx context.Context, pipeline, msg_id string, progres
 
 func TestExecute(t *testing.T) {
 	pr := &Process{
-		agentApi: &DummyAgentApi{},
-		subscriber: &DummySubscriber{},
+		agentApi:     &DummyAgentApi{},
+		subscriber:   &DummySubscriber{},
 		messageStore: &DummyStore{},
 		command_args: []string{},
 	}

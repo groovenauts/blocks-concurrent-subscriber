@@ -31,7 +31,7 @@ func (ss *SqlStore) setup(ctx context.Context, driver, datasource string) (func(
 	return db.Close, nil
 }
 
-func (ss *SqlStore) save(ctx context.Context, pipeline, msg_id string, progress int, publishTime time.Time, f func() error ) error {
+func (ss *SqlStore) save(ctx context.Context, pipeline, msg_id string, progress int, publishTime time.Time, f func() error) error {
 	err := ss.transaction(func(tx *sql.Tx) error {
 		_, err := tx.Exec(SQL_UPDATE_JOBS, progress, msg_id, progress)
 		if err != nil {

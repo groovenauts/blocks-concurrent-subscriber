@@ -1,5 +1,7 @@
 # blocks-concurrent-batch-subscriber
 
+[![Build Status](https://secure.travis-ci.org/groovenauts/blocks-concurrent-subscriber.png)](https://travis-ci.org/groovenauts/blocks-concurrent-subscriber)
+
 ## Overview
 
 `blocks-concurrent-subscriber` subscribes the progresses of jobs with `blocks concurrent batch board` of [magellan-blocks](https://www.magellanic-clouds.com/blocks/).
@@ -16,7 +18,6 @@ and put it somewhere on PATH.
 
 ```bash
 $ blocks-concurrent-subscriber \
-  --project [Your GCP Project] \
   --datasource [Datasource string to Your MySQL] \
   --agent-root-url [URL to your blocks-concurrent-batch-agent] \
   --agent-token [Token of your blocks-concurrent-batch-agent]

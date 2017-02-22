@@ -1,8 +1,8 @@
 package main
 
 import (
-	"fmt"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 
@@ -13,10 +13,10 @@ type HttpRequester interface {
 	Do(req *http.Request) (*http.Response, error)
 }
 
-type DefaultAgentClient struct{
+type DefaultAgentClient struct {
 	httpRequester HttpRequester
-	httpUrl      string
-	httpToken    string
+	httpUrl       string
+	httpToken     string
 }
 
 func (ac *DefaultAgentClient) getSubscriptions(ctx context.Context) ([]*Subscription, error) {
