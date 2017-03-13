@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"time"
 
@@ -16,26 +17,10 @@ func main() {
 	app.Version = Version
 
 	app.Flags = []cli.Flag{
-		cli.StringFlag{
-			Name:   "datasource",
-			Usage:  "Data source name to your database",
-			EnvVar: "DATASOURCE",
-		},
-		cli.StringFlag{
-			Name:   "agent-root-url, A",
-			Usage:  "URL to your blocks-concurrent-batch-agent root",
-			EnvVar: "AGENT_URL",
-		},
-		cli.StringFlag{
-			Name:   "agent-token, T",
-			Usage:  "Authorization token for blocks-concurrent-batch-agent",
-			EnvVar: "AGENT_TOKEN",
-		},
-		cli.UintFlag{
-			Name:  "interval",
-			Value: 10,
-			Usage: "Interval to pull",
-		},
+    cli.StringFlag{
+      Name:  "config, c",
+      Usage: "Load configuration from `FILE`",
+    },
 	}
 
 	app.Action = executeCommand
@@ -45,18 +30,23 @@ func main() {
 
 func executeCommand(c *cli.Context) error {
 
-	interval := c.Uint("interval")
+	config_path := c.String("config")
+	config, err := LoadProcessConfig(config_path)
+	if err != nil {
+		fmt.Printf("Failed to load %v cause of %v\n", config_path, err)
+		os.Exit(1)
+	}
 
 	ctx := context.Background()
 
 	pubsubSubscriber := &PubsubSubscriber{}
-	err := pubsubSubscriber.setup(ctx)
+	err = pubsubSubscriber.setup(ctx)
 	if err != nil {
 		os.Exit(1)
 	}
 
 	store := &SqlStore{}
-	cb, err := store.setup(ctx, "mysql", c.String("datasource"))
+	cb, err := store.setup(ctx, "mysql", config.Datasource)
 	if err != nil {
 		os.Exit(1)
 	}
@@ -65,8 +55,8 @@ func executeCommand(c *cli.Context) error {
 	for {
 		p := &Process{
 			agentApi: &DefaultAgentClient{
-				httpUrl:   c.String("agent-root-url"),
-				httpToken: c.String("agent-token"),
+				httpUrl:   config.AgentRootUrl,
+				httpToken: config.AgentRootToken,
 			},
 			subscriber:   pubsubSubscriber,
 			messageStore: store,
@@ -74,7 +64,7 @@ func executeCommand(c *cli.Context) error {
 		}
 		p.execute(ctx)
 
-		time.Sleep(time.Duration(interval) * time.Second)
+		time.Sleep(time.Duration(config.Interval) * time.Second)
 	}
 
 	return nil
