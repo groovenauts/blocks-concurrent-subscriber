@@ -11,7 +11,7 @@ import (
 
 type (
 	PatternConfig struct {
-		Completed bool   `json:"completed"`
+		Completed string   `json:"completed"`
 		Level string     `json:"level"`
 		Command []string `json:"command"`
 	}

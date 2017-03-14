@@ -5,12 +5,12 @@
   "interval": 10,
   "patterns": [
     {
-      "completed": true,
+      "completed": "true",
       "command": ["bin/rails", "r", "Model.complete('%{msg.job_message_id}')"]
     },
     {
       "level": "fatal",
-      "completed": false,
+      "completed": "false",
       "command": ["bin/rails", "r", "Model.fatalError(%{msg.job_message_id}, '%{msg.data}')"]
     }
   ]
