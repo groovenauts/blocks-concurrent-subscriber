@@ -60,7 +60,7 @@ func executeCommand(c *cli.Context) error {
 			},
 			subscriber:   pubsubSubscriber,
 			messageStore: store,
-			command_args: c.Args(),
+			patterns: config.Patterns,
 		}
 		p.execute(ctx)
 

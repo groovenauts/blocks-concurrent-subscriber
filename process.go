@@ -2,8 +2,6 @@ package main
 
 import (
 	"fmt"
-	"os"
-	"os/exec"
 
 	"golang.org/x/net/context"
 
@@ -26,7 +24,7 @@ type Process struct {
 	agentApi     AgentApi
 	subscriber   MessageSubscriber
 	messageStore MessageStore
-	command_args []string
+	patterns     Patterns
 }
 
 type Subscription struct {
@@ -60,17 +58,7 @@ func (p *Process) pullAndSave(ctx context.Context, subscription *Subscription) e
 			return err
 		}
 		err = p.messageStore.save(ctx, subscription.Pipeline, msg, func() error {
-			// Execute command to notify
-			if len(p.command_args) > 0 {
-				name := p.command_args[0]
-				args := p.command_args[1:] // TODO how should the parameters be passed
-				cmd := exec.Command(name, args...)
-				cmd.Stdout = os.Stdout
-				cmd.Stderr = os.Stderr
-				err = cmd.Run()
-				return err
-			}
-			return nil
+			return p.patterns.execute(msg)
 		})
 		return err
 	})

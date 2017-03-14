@@ -9,21 +9,13 @@ import (
 	"text/template"
 )
 
-type (
-	PatternConfig struct {
-		Completed string   `json:"completed"`
-		Level string     `json:"level"`
-		Command []string `json:"command"`
-	}
-
-	ProcessConfig struct {
-		Datasource string        `json:"datasource"`
-		AgentRootUrl string      `json:"agent-root-url"`
-		AgentRootToken string    `json:"agent-root-token"`
-		Interval int             `json:"interval"`
-		Patterns []PatternConfig `json:"patterns"`
-	}
-)
+type ProcessConfig struct {
+	Datasource string        `json:"datasource"`
+	AgentRootUrl string      `json:"agent-root-url"`
+	AgentRootToken string    `json:"agent-root-token"`
+	Interval int             `json:"interval"`
+	Patterns []*Pattern       `json:"patterns"`
+}
 
 func LoadProcessConfig(path string) (*ProcessConfig, error) {
 	raw, err := ioutil.ReadFile(path)

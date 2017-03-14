@@ -55,7 +55,7 @@ func TestExecute(t *testing.T) {
 		agentApi:     &DummyAgentApi{},
 		subscriber:   &DummySubscriber{},
 		messageStore: &DummyStore{},
-		command_args: []string{},
+		patterns:     Patterns{},
 	}
 
 	ctx := context.Background()
