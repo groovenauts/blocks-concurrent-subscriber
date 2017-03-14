@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"strconv"
-	"time"
 
 	"golang.org/x/net/context"
 
@@ -21,7 +19,7 @@ type MessageSubscriber interface {
 }
 
 type MessageStore interface {
-	save(ctx context.Context, pipeline, msg_id string, progress int, publishTime time.Time, f func() error) error
+	save(ctx context.Context, pipeline string, msg *Message, f func() error) error
 }
 
 type Process struct {
@@ -51,22 +49,17 @@ func (p *Process) execute(ctx context.Context) error {
 func (p *Process) pullAndSave(ctx context.Context, subscription *Subscription) error {
 	err := p.subscriber.subscribe(ctx, subscription, func(recvMsg *pubsub.ReceivedMessage) error {
 		m := recvMsg.Message
-		// https://github.com/groovenauts/magellan-gcs-proxy/blob/master/lib/magellan/gcs/proxy/progress_notification.rb#L24
-		msg_id := m.Attributes["job_message_id"]
-		progress, err := strconv.Atoi(m.Attributes["progress"])
-		if err != nil {
-			fmt.Printf("Failed to convert %v to int message_id: %v cause of %v", m.Attributes["progress"], msg_id, err)
-			return err
-		}
-		// https://cloud.google.com/pubsub/docs/reference/rest/v1/PubsubMessage
-		// A timestamp in RFC3339 UTC "Zulu" format, accurate to nanoseconds. Example: "2014-10-02T15:01:23.045123456Z".
-		PublishTime, err := time.Parse(time.RFC3339, m.PublishTime)
-		if err != nil {
-			fmt.Printf("Failed to parse publishTime(%v) message_id: %v cause of %v", m.PublishTime, msg_id, err)
-			return err
-		}
 
-		err = p.messageStore.save(ctx, subscription.Pipeline, msg_id, progress, PublishTime, func() error {
+		msg := &Message{data: m.Data}
+		err := msg.load(m.Attributes)
+		if err != nil {
+			return err
+		}
+		err = msg.parse(m.PublishTime)
+		if err != nil {
+			return err
+		}
+		err = p.messageStore.save(ctx, subscription.Pipeline, msg, func() error {
 			// Execute command to notify
 			if len(p.command_args) > 0 {
 				name := p.command_args[0]
