@@ -14,6 +14,9 @@ testsetup:
 	mysql -u root -e "CREATE DATABASE IF NOT EXISTS blocks_subscriber_test DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
 	mysql -u root blocks_subscriber_test < migrations/up.sql
 
+testfixtures:
+	mysql -u root blocks_subscriber_test < test/setup.sql
+
 testteardown:
 	mysql -u root blocks_subscriber_test < migrations/down.sql
 	mysql -u root -e "DROP DATABASE IF EXISTS blocks_subscriber_test;"
