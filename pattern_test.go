@@ -68,20 +68,44 @@ func TestPatternsExecute(t *testing.T) {
 			stdout: "",
 			stderr: "unrecognized option",
 		},
+		{
+			msg: &Message{
+				msg_id: "test-msg4",
+				progress: 1,
+				publishTime: time.Now(),
+				completed: "false",
+				level: "debug",
+				data: "Mismatch",
+			},
+			stdout: "",
+			stderr: "",
+		},
 	}
 
-	for _, testPattern := range testPatterns {
-		bufStdout := &bytes.Buffer{}
-		bufStderr := &bytes.Buffer{}
-		CommandStdout = bufStdout
-		CommandStderr = bufStderr
-		err := patterns.executeOne(testPattern.msg)
-		if testPattern.err != "" {
-			assert.Regexp(t, testPattern.err, err.Error())
-		} else {
-			assert.NoError(t, err)
+	type calling func(msg *Message) error
+	callings := []calling{
+		func(msg *Message) error {
+			return patterns.execute(msg)
+		},
+		func(msg *Message) error {
+			return patterns.executeOne(msg)
+		},
+	}
+
+	for _, calling := range callings {
+		for _, testPattern := range testPatterns {
+			bufStdout := &bytes.Buffer{}
+			bufStderr := &bytes.Buffer{}
+			CommandStdout = bufStdout
+			CommandStderr = bufStderr
+			err := calling(testPattern.msg)
+			if testPattern.err != "" {
+				assert.Regexp(t, testPattern.err, err.Error())
+			} else {
+				assert.NoError(t, err)
+			}
+			assert.Regexp(t, testPattern.stdout, bufStdout.String())
+			assert.Regexp(t, testPattern.stderr, bufStderr.String())
 		}
-		assert.Regexp(t, testPattern.stdout, bufStdout.String())
-		assert.Regexp(t, testPattern.stderr, bufStderr.String())
 	}
 }
