@@ -38,6 +38,14 @@ func (m *Message) parse(publishTime string) error {
 	return nil
 }
 
+func (m *Message) completedInt() int {
+	if m.completed == "true" {
+		return 1
+	} else {
+		return 0
+	}
+}
+
 func (m *Message) buildMap() map[string]interface{} {
 	return map[string]interface{}{
 		"job_message_id":     m.msg_id,
