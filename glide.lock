@@ -1,5 +1,5 @@
-hash: 731c43addfcd2c75d5cd50850a68895bbe4ed84684d7e24821915f38a9e3037f
-updated: 2017-02-20T20:23:04.67773+09:00
+hash: a32c4766c87f92ba3c0842531bdd1bd8b45c4e57357f40be864426900e569ff1
+updated: 2017-03-15T19:57:53.262187693+09:00
 imports:
 - name: cloud.google.com/go
   version: 81b7822b1e798e8f17bf64b59512a5be4097e966
@@ -14,6 +14,8 @@ imports:
   - proto
 - name: github.com/googleapis/gax-go
   version: da06d194a00e19ce00d9011a13931c3f6f6887c7
+- name: github.com/groovenauts/blocks-variable
+  version: 833d2f1e70b82c8a0a1149827906ab32aed40276
 - name: github.com/urfave/cli
   version: 347a9884a87374d000eec7e6445a34487c1f4a2b
 - name: golang.org/x/net
