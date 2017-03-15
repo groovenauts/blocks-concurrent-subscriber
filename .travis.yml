@@ -4,8 +4,6 @@ go:
   - 1.6.4
 services:
   - mysql
-before_install:
-  - make testsetup
 addons:
   apt:
     sources:
@@ -14,6 +12,7 @@ addons:
       - glide
 before_install:
   - test -d $GOPATH/bin || mkdir -p $GOPATH/bin
+  - make testsetup
 install:
   ## Install dependencies
   - glide install
