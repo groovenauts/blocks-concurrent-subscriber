@@ -2,6 +2,10 @@ sudo: false
 language: go
 go:
   - 1.6.4
+services:
+  - mysql
+before_install:
+  - make testsetup
 addons:
   apt:
     sources:
