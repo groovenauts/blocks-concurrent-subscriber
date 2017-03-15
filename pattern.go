@@ -1,20 +1,26 @@
 package main
 
 import (
+	"io"
 	"os"
 	"os/exec"
+
+	"github.com/groovenauts/blocks-variable"
+)
+
+var (
+	CommandStdout io.Writer = os.Stdout
+	CommandStderr io.Writer = os.Stderr
 )
 
 type Pattern struct {
 	Completed string `json:"completed"`
 	Level string     `json:"level"`
+	Data string
 	Command []string `json:"command"`
 }
 
 func (p *Pattern) execute(msg *Message) error {
-	if !p.match(msg) {
-		return nil
-	}
 	cmd, err := p.build(msg)
 	if err != nil {
 		return err
@@ -23,20 +29,57 @@ func (p *Pattern) execute(msg *Message) error {
 }
 
 func (p *Pattern) match(msg *Message) bool {
-	return false
+	if p.Completed != "" {
+		if p.Completed != msg.completed {
+			return false
+		}
+	}
+	if p.Level != "" {
+		if p.Level != msg.level {
+			return false
+		}
+	}
+	return true
 }
 
 func (p *Pattern) build(msg *Message) (*exec.Cmd, error) {
-
-	name := p.Command[0]
-	args := p.Command[1:] // TODO how should the parameters be passed
+	v := &bvariable.Variable{Data: msg.buildMap()}
+	command := []string{}
+	for _, part := range p.Command {
+		expanded, err := v.Expand(part)
+		if err != nil {
+			return nil, err
+		}
+		command = append(command, expanded)
+	}
+	name := command[0]
+	args := command[1:]
 	cmd := exec.Command(name, args...)
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
+	cmd.Stdout = CommandStdout
+	cmd.Stderr = CommandStderr
 	return cmd, nil
 }
 
 type Patterns []*Pattern
+
+func (pa Patterns) allFor(msg *Message) Patterns {
+	result := Patterns{}
+	for _, ptn := range pa {
+		if ptn.match(msg) {
+			result = append(result, ptn)
+		}
+	}
+	return result
+}
+
+func (pa Patterns) oneFor(msg *Message) *Pattern {
+	for _, ptn := range pa {
+		if ptn.match(msg) {
+			return ptn
+		}
+	}
+	return nil
+}
 
 func (pa Patterns) execute(msg *Message) error {
 	for _, ptn := range pa {
@@ -46,4 +89,12 @@ func (pa Patterns) execute(msg *Message) error {
 		}
 	}
 	return nil
+}
+
+func (pa Patterns) executeOne(msg *Message) error {
+	ptn := pa.oneFor(msg)
+	if ptn == nil {
+		return nil
+	}
+	return ptn.execute(msg)
 }

@@ -10,6 +10,8 @@ type Message struct {
 	msg_id string
 	progress int
 	publishTime time.Time
+	completed string
+	level string
 	data string
 }
 
@@ -34,4 +36,15 @@ func (m *Message) parse(publishTime string) error {
 	}
 	m.publishTime = t
 	return nil
+}
+
+func (m *Message) buildMap() map[string]interface{} {
+	return map[string]interface{}{
+		"job_message_id":     m.msg_id,
+		"progress":						m.progress,
+		"publishTime":				m.publishTime,
+		"completed":					m.completed,
+		"level":							m.level,
+		"data":								m.data,
+	}
 }
