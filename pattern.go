@@ -83,9 +83,11 @@ func (pa Patterns) oneFor(msg *Message) *Pattern {
 
 func (pa Patterns) execute(msg *Message) error {
 	for _, ptn := range pa {
-		err := ptn.execute(msg)
-		if err != nil {
-			return err
+		if ptn.match(msg) {
+			err := ptn.execute(msg)
+			if err != nil {
+				return err
+			}
 		}
 	}
 	return nil
