@@ -3,6 +3,7 @@ BASENAME=blocks-concurrent-subscriber
 VERSION=`grep VERSION version.go | cut -f2 -d\"`
 OS=linux
 ARCH=amd64
+UNFORMATTED=$(shell gofmt -l *.go)
 
 all: build
 
@@ -29,7 +30,8 @@ check: checkfmt
 	goimports -l *.go
 
 checkfmt:
-ifneq ($(shell gofmt -l *.go),)
+ifneq ($(UNFORMATTED),)
+	@echo $(UNFORMATTED)
 	exit 1
 else
 	@echo "gofmt -l *.go OK"
