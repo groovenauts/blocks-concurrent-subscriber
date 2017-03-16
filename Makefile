@@ -24,9 +24,16 @@ testteardown:
 	mysql -u root blocks_subscriber_test < migrations/down.sql
 	mysql -u root -e "DROP DATABASE IF EXISTS blocks_subscriber_test;"
 
-check:
+check: checkfmt
 	go vet *.go
 	goimports -l *.go
+
+checkfmt:
+ifneq ($(shell gofmt -l *.go),)
+	exit 1
+else
+	@echo "gofmt -l *.go OK"
+endif
 
 build:
 	mkdir -p ${PKGDIR}
