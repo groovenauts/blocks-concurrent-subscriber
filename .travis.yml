@@ -12,9 +12,12 @@ addons:
       - glide
 before_install:
   - test -d $GOPATH/bin || mkdir -p $GOPATH/bin
+  - make checksetup
   - make testsetup
 install:
   ## Install dependencies
   - glide install
+before_script:
+  - make check
 script:
   - go test
