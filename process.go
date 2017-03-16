@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/base64"
 	"fmt"
 
 	"golang.org/x/net/context"
@@ -48,8 +49,13 @@ func (p *Process) pullAndSave(ctx context.Context, subscription *Subscription) e
 	err := p.subscriber.subscribe(ctx, subscription, func(recvMsg *pubsub.ReceivedMessage) error {
 		m := recvMsg.Message
 
-		msg := &Message{data: m.Data}
-		err := msg.load(m.Attributes)
+		data, err := base64.StdEncoding.DecodeString(m.Data)
+		if err != nil {
+			return err
+		}
+
+		msg := &Message{data: string(data)}
+		err = msg.load(m.Attributes)
 		if err != nil {
 			return err
 		}
