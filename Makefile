@@ -10,6 +10,9 @@ setup:
 	go get github.com/mitchellh/gox
 	go get github.com/tcnksm/ghr
 
+checksetup:
+	go get golang.org/x/tools/cmd/goimports
+
 testsetup:
 	mysql -u root -e "CREATE DATABASE IF NOT EXISTS blocks_subscriber_test DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
 	mysql -u root blocks_subscriber_test < migrations/up.sql
@@ -20,6 +23,10 @@ testfixtures:
 testteardown:
 	mysql -u root blocks_subscriber_test < migrations/down.sql
 	mysql -u root -e "DROP DATABASE IF EXISTS blocks_subscriber_test;"
+
+check:
+	go vet *.go
+	goimports -l *.go
 
 build:
 	mkdir -p ${PKGDIR}
