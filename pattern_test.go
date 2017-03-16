@@ -13,69 +13,69 @@ func TestPatternsExecute(t *testing.T) {
 	patterns := Patterns{
 		&Pattern{
 			Completed: "true",
-			Command: []string{"echo", "COMPLETED %{data}"},
+			Command:   []string{"echo", "COMPLETED %{data}"},
 		},
 		&Pattern{
-			Level: "fatal",
+			Level:   "fatal",
 			Command: []string{"echo", "FATAL %{data}"},
 		},
 		&Pattern{
-			Level: "error",
+			Level:   "error",
 			Command: []string{"grep", "--invalid", "option"},
 		},
 	}
 
 	testPatterns := []struct {
-		msg *Message
-		err string
+		msg    *Message
+		err    string
 		stdout string
 		stderr string
 	}{
 		{
 			msg: &Message{
-				msg_id: "test-msg1",
-				progress: 5,
+				msg_id:      "test-msg1",
+				progress:    5,
 				publishTime: time.Now(),
-				completed: "true",
-				level: "info",
-				data: "SUCCESS",
+				completed:   "true",
+				level:       "info",
+				data:        "SUCCESS",
 			},
 			stdout: "COMPLETED SUCCESS",
 			stderr: "",
 		},
 		{
 			msg: &Message{
-				msg_id: "test-msg2",
-				progress: 2,
+				msg_id:      "test-msg2",
+				progress:    2,
 				publishTime: time.Now(),
-				completed: "false",
-				level: "fatal",
-				data: "panic!",
+				completed:   "false",
+				level:       "fatal",
+				data:        "panic!",
 			},
 			stdout: "FATAL panic!",
 			stderr: "",
 		},
 		{
 			msg: &Message{
-				msg_id: "test-msg3",
-				progress: 3,
+				msg_id:      "test-msg3",
+				progress:    3,
 				publishTime: time.Now(),
-				completed: "false",
-				level: "error",
-				data: "",
+				completed:   "false",
+				level:       "error",
+				data:        "",
 			},
-			err: "exit status 2",
+			err:    "exit status 2",
 			stdout: "",
 			stderr: "unrecognized option",
 		},
 		{
 			msg: &Message{
-				msg_id: "test-msg4",
-				progress: 1,
+				msg_id:      "test-msg4",
+				progress:    1,
 				publishTime: time.Now(),
-				completed: "false",
-				level: "debug",
-				data: "Mismatch",
+				completed:   "false",
+				level:       "debug",
+				data:        "Mismatch",
 			},
 			stdout: "",
 			stderr: "",

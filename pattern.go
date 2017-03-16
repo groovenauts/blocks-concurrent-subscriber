@@ -15,9 +15,9 @@ var (
 
 type Pattern struct {
 	Completed string `json:"completed"`
-	Level string     `json:"level"`
-	Data string
-	Command []string `json:"command"`
+	Level     string `json:"level"`
+	Data      string
+	Command   []string `json:"command"`
 }
 
 func (p *Pattern) execute(msg *Message) error {

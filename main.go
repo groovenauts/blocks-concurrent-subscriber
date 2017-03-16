@@ -17,10 +17,10 @@ func main() {
 	app.Version = Version
 
 	app.Flags = []cli.Flag{
-    cli.StringFlag{
-      Name:  "config, c",
-      Usage: "Load configuration from `FILE`",
-    },
+		cli.StringFlag{
+			Name:  "config, c",
+			Usage: "Load configuration from `FILE`",
+		},
 	}
 
 	app.Action = executeCommand
@@ -60,7 +60,7 @@ func executeCommand(c *cli.Context) error {
 			},
 			subscriber:   pubsubSubscriber,
 			messageStore: store,
-			patterns: config.Patterns,
+			patterns:     config.Patterns,
 		}
 		p.execute(ctx)
 

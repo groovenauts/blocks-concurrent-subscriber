@@ -10,11 +10,11 @@ import (
 )
 
 type ProcessConfig struct {
-	Datasource string        `json:"datasource"`
-	AgentRootUrl string      `json:"agent-root-url"`
-	AgentRootToken string    `json:"agent-root-token"`
-	Interval int             `json:"interval"`
-	Patterns []*Pattern       `json:"patterns"`
+	Datasource     string     `json:"datasource"`
+	AgentRootUrl   string     `json:"agent-root-url"`
+	AgentRootToken string     `json:"agent-root-token"`
+	Interval       int        `json:"interval"`
+	Patterns       []*Pattern `json:"patterns"`
 }
 
 func LoadProcessConfig(path string) (*ProcessConfig, error) {

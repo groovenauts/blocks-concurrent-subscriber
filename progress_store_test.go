@@ -25,10 +25,10 @@ func assertCount(t *testing.T, db *sql.DB, expected int, sql string, args ...int
 }
 
 type PipelineJob struct {
-	id int
-	pipeline string
+	id             int
+	pipeline       string
 	job_message_id string
-	progress int
+	progress       int
 }
 
 const PIPELINE_JOBS_QUERY_BASE = "SELECT id, pipeline, job_message_id, progress FROM pipeline_jobs "
@@ -61,19 +61,19 @@ func TestProgressStoreSave(t *testing.T) {
 	defer cb()
 
 	db := store.db
-	
+
 	extraCalled := false
 	extra := func() error {
 		extraCalled = true
 		return nil
 	}
 	msg := &Message{
-		msg_id: "jm01",
-		progress: 2,
+		msg_id:      "jm01",
+		progress:    2,
 		publishTime: time.Now(),
-		completed: "false",
-		level: "info",
-		data: "",
+		completed:   "false",
+		level:       "info",
+		data:        "",
 	}
 
 	pl, err := queryPipelineJob(db, "WHERE pipeline='pipeline01' AND job_message_id=?", msg.msg_id)
@@ -87,18 +87,18 @@ func TestProgressStoreSave(t *testing.T) {
 	assert.Equal(t, 2, pl.progress)
 
 	msg = &Message{
-		msg_id: "jm04",
-		progress: 2,
+		msg_id:      "jm04",
+		progress:    2,
 		publishTime: time.Now(),
-		completed: "false",
-		level: "info",
-		data: "",
+		completed:   "false",
+		level:       "info",
+		data:        "",
 	}
 
 	pl, err = queryPipelineJob(db, "WHERE pipeline='pipeline01' AND job_message_id=?", msg.msg_id)
 	assert.NoError(t, err)
 	assert.Equal(t, 4, pl.progress)
-	
+
 	store.save(ctx, "pipeline01", msg, extra)
 
 	pl, err = queryPipelineJob(db, "WHERE pipeline='pipeline01' AND job_message_id=?", msg.msg_id)
