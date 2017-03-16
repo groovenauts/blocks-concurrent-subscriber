@@ -35,6 +35,8 @@ func (ac *DefaultAgentClient) getSubscriptions(ctx context.Context) ([]*Subscrip
 	}
 	defer resp.Body.Close()
 
+	fmt.Printf("DefaultAgentClient.getSubscriptions() resp.StatusCode: %v\n", resp.StatusCode)
+
 	byteArray, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
