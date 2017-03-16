@@ -57,7 +57,7 @@ func (ps *PubsubSubscriber) setup(ctx context.Context) error {
 func (ps *PubsubSubscriber) subscribe(ctx context.Context, subscription *Subscription, f func(msg *pubsub.ReceivedMessage) error) error {
 	pullRequest := &pubsub.PullRequest{
 		ReturnImmediately: false,
-		// MaxMessages: 1,
+		MaxMessages:       10,
 	}
 	res, err := ps.puller.Pull(subscription.Name, pullRequest)
 	if err != nil {
