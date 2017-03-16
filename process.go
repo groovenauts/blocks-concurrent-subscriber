@@ -35,7 +35,7 @@ type Subscription struct {
 func (p *Process) execute(ctx context.Context) error {
 	subscriptions, err := p.agentApi.getSubscriptions(ctx)
 	if err != nil {
-		fmt.Println("Process.execute() err: %v", err)
+		fmt.Println("Process.execute() err: ", err)
 		return err
 	}
 	for _, sub := range subscriptions {

@@ -66,6 +66,4 @@ func executeCommand(c *cli.Context) error {
 
 		time.Sleep(time.Duration(config.Interval) * time.Second)
 	}
-
-	return nil
 }
