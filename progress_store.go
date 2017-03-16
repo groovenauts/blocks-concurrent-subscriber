@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"fmt"
 	"runtime"
-	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 
@@ -12,8 +11,8 @@ import (
 )
 
 const (
-	SQL_UPDATE_JOBS = "UPDATE pipeline_jobs SET status = ? WHERE message_id = ? AND status < ?"
-	SQL_INSERT_LOGS = "INSERT INTO pipeline_job_logs (pipeline, message_id, status, publish_time) VALUES (?, ?, ?, ?)"
+	SQL_UPDATE_JOBS = "UPDATE pipeline_jobs SET progress = ? WHERE job_message_id = ? AND progress < ?"
+	SQL_INSERT_LOGS = "INSERT INTO pipeline_job_logs (pipeline, job_message_id, publish_time, progress, completed, log_level, log_message) VALUES (?, ?, ?, ?, ?, ?, ?)"
 )
 
 type SqlStore struct {
@@ -31,17 +30,17 @@ func (ss *SqlStore) setup(ctx context.Context, driver, datasource string) (func(
 	return db.Close, nil
 }
 
-func (ss *SqlStore) save(ctx context.Context, pipeline, msg_id string, progress int, publishTime time.Time, f func() error) error {
+func (ss *SqlStore) save(ctx context.Context, pipeline string, msg *Message, f func() error) error {
 	err := ss.transaction(func(tx *sql.Tx) error {
-		_, err := tx.Exec(SQL_UPDATE_JOBS, progress, msg_id, progress)
+		_, err := tx.Exec(SQL_UPDATE_JOBS, msg.progress, msg.msg_id, msg.progress)
 		if err != nil {
-			fmt.Println("Failed to update pipeline_jobs message_id: %v to status: %v cause of %v", msg_id, progress, err)
+			fmt.Printf("Failed to update pipeline_jobs job_message_id: %v to progress: %v cause of %v", msg.msg_id, msg.progress, err)
 			return err
 		}
 
-		_, err = tx.Exec(SQL_INSERT_LOGS, pipeline, msg_id, progress, publishTime)
+		_, err = tx.Exec(SQL_INSERT_LOGS, pipeline, msg.msg_id, msg.publishTime, msg.progress, msg.completedInt(), msg.level, msg.data)
 		if err != nil {
-			fmt.Println("Failed to insert pipeline_job_logs pipeline: %v, message_id: %v, status: %v cause of %v", pipeline, msg_id, progress, err)
+			fmt.Printf("Failed to insert pipeline_job_logs pipeline: %v, job_message_id: %v, progress: %v cause of %v", pipeline, msg.msg_id, msg.progress, err)
 			return err
 		}
 
@@ -53,7 +52,7 @@ func (ss *SqlStore) save(ctx context.Context, pipeline, msg_id string, progress 
 		return nil
 	})
 	if err != nil {
-		fmt.Println("Failed to begin a transaction message_id: %v to status: %v cause of %v", msg_id, progress, err)
+		fmt.Printf("Failed to begin a transaction job_message_id: %v to progress: %v cause of %v", msg.msg_id, msg.progress, err)
 	}
 	return err
 }

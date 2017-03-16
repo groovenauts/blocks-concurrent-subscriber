@@ -1,2 +1,2 @@
-DROP TABLE `pipeline_job_logs`;
-DROP TABLE `pipeline_jobs`;
+DROP TABLE IF EXISTS `pipeline_job_logs`;
+DROP TABLE IF EXISTS `pipeline_jobs`;

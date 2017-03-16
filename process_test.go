@@ -37,15 +37,15 @@ func (ds *DummySubscriber) subscribe(ctx context.Context, subscription *Subscrip
 
 type DummyStore struct{}
 
-func (ds *DummyStore) save(ctx context.Context, pipeline, msg_id string, progress int, publishTime time.Time, f func() error) error {
+func (ds *DummyStore) save(ctx context.Context, pipeline string, msg *Message, f func() error) error {
 	if "pipeline01" != pipeline {
 		return fmt.Errorf("pipeline should be pipeline01 but was %v", pipeline)
 	}
-	if "0123456789" != msg_id {
-		return fmt.Errorf("msg_id should be 0123456789 but was %v", msg_id)
+	if "0123456789" != msg.msg_id {
+		return fmt.Errorf("msg_id should be 0123456789 but was %v", msg.msg_id)
 	}
-	if 14 != progress {
-		return fmt.Errorf("progress should be 14 but was %v", progress)
+	if 14 != msg.progress {
+		return fmt.Errorf("progress should be 14 but was %v", msg.progress)
 	}
 	return nil
 }
@@ -55,7 +55,7 @@ func TestExecute(t *testing.T) {
 		agentApi:     &DummyAgentApi{},
 		subscriber:   &DummySubscriber{},
 		messageStore: &DummyStore{},
-		command_args: []string{},
+		patterns:     Patterns{},
 	}
 
 	ctx := context.Background()

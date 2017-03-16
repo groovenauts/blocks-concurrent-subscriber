@@ -1,0 +1,17 @@
+{
+  "datasource": "root:@/database1",
+  "agent-root-url": "https://blocks-concurrent-batch-agent-somewhere.com",
+  "agent-root-token": "password1",
+  "interval": 10,
+  "patterns": [
+    {
+      "completed": "true",
+      "command": ["bin/rails", "r", "Model.complete('%{msg.job_message_id}')"]
+    },
+    {
+      "level": "fatal",
+      "completed": "false",
+      "command": ["bin/rails", "r", "Model.fatalError(%{msg.job_message_id}, '%{msg.data}')"]
+    }
+  ]
+}

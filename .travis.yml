@@ -2,6 +2,8 @@ sudo: false
 language: go
 go:
   - 1.6.4
+services:
+  - mysql
 addons:
   apt:
     sources:
@@ -10,8 +12,12 @@ addons:
       - glide
 before_install:
   - test -d $GOPATH/bin || mkdir -p $GOPATH/bin
+  - make checksetup
+  - make testsetup
 install:
   ## Install dependencies
   - glide install
+before_script:
+  - make check
 script:
   - go test
