@@ -9,9 +9,9 @@ import (
 func TestMessageLoad(t *testing.T) {
 	raw1 := map[string]string{
 		"job_message_id": "88047337842272",
-		"level": "info",
-		"progress": "2",
-		"completed": "false",
+		"level":          "info",
+		"progress":       "2",
+		"completed":      "false",
 	}
 	msg := &Message{}
 	err := msg.load(raw1)
@@ -23,9 +23,9 @@ func TestMessageLoad(t *testing.T) {
 
 	raw2 := map[string]string{
 		"job_message_id": "88047337842272",
-		"level": "info",
-		"progress": "5",
-		"completed": "true",
+		"level":          "info",
+		"progress":       "5",
+		"completed":      "true",
 	}
 	msg = &Message{}
 	err = msg.load(raw2)

@@ -25,7 +25,7 @@ func (ac *DefaultAgentClient) getSubscriptions(ctx context.Context) ([]*Subscrip
 		ac.httpRequester = new(http.Client)
 	}
 
-	url := ac.httpUrl+"/pipelines/subscriptions"
+	url := ac.httpUrl + "/pipelines/subscriptions"
 	logAttrs := log.Fields{"url": url}
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
