@@ -17,6 +17,8 @@ type Message struct {
 
 func (m *Message) load(attrs map[string]string) error {
 	m.msg_id = attrs["job_message_id"]
+	m.level = attrs["level"]
+	m.completed = attrs["completed"]
 	progress, err := strconv.Atoi(attrs["progress"])
 	if err != nil {
 		fmt.Printf("Failed to convert %v to int message_id: %v cause of %v", attrs["progress"], m.msg_id, err)
