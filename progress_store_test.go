@@ -2,12 +2,12 @@ package main
 
 import (
 	"database/sql"
-	"log"
 	"os"
 	"os/exec"
 	"testing"
 	"time"
 
+	log "github.com/Sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 
 	"golang.org/x/net/context"

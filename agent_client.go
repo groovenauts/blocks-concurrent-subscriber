@@ -2,11 +2,12 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 
 	"golang.org/x/net/context"
+
+	log "github.com/Sirupsen/logrus"
 )
 
 type HttpRequester interface {
@@ -24,28 +25,31 @@ func (ac *DefaultAgentClient) getSubscriptions(ctx context.Context) ([]*Subscrip
 		ac.httpRequester = new(http.Client)
 	}
 
-	req, err := http.NewRequest("GET", ac.httpUrl+"/pipelines/subscriptions", nil)
+	url := ac.httpUrl+"/pipelines/subscriptions"
+	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, err
 	}
 	req.Header.Set("Authorization", "Bearer "+ac.httpToken)
+
 	resp, err := ac.httpRequester.Do(req)
 	if err != nil {
+		log.WithFields(log.Fields{"url": url}).Errorln(err)
 		return nil, err
 	}
 	defer resp.Body.Close()
 
-	fmt.Printf("DefaultAgentClient.getSubscriptions() resp.StatusCode: %v\n", resp.StatusCode)
+	log.WithFields(log.Fields{"url": url, "status": resp.StatusCode}).Debugln("GET OK")
 
 	byteArray, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
 	}
-	fmt.Printf("DefaultAgentClient.getSubscriptions()\n%v\n", string(byteArray))
 
 	var subscriptions []Subscription
 	err = json.Unmarshal(byteArray, &subscriptions)
 	if err != nil {
+		log.WithFields(log.Fields{"url": url}).Errorln(err)
 		return nil, err
 	}
 	result := []*Subscription{}
