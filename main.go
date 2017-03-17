@@ -8,6 +8,8 @@ import (
 	"github.com/urfave/cli"
 
 	"golang.org/x/net/context"
+
+	log "github.com/Sirupsen/logrus"
 )
 
 func main() {
@@ -36,6 +38,13 @@ func executeCommand(c *cli.Context) error {
 		fmt.Printf("Failed to load %v cause of %v\n", config_path, err)
 		os.Exit(1)
 	}
+
+	level, err := log.ParseLevel(config.LogLevel)
+	if err != nil {
+		fmt.Printf("Invalid log level %v cause of %v\n", config.LogLevel, err)
+		os.Exit(1)
+	}
+	log.SetLevel(level)
 
 	ctx := context.Background()
 
