@@ -55,18 +55,11 @@ func (ss *SqlStore) save(ctx context.Context, pipeline string, msg *Message, f f
 
 		if f != nil {
 			err = f()
-			if err != nil {
-				log.WithFields(logAttrs).Errorln("Error occurred in transaction")
-			}
 			return err
 		}
 
 		return nil
 	})
-	if err != nil {
-		logAttrs["error"] = err
-		log.WithFields(logAttrs).Errorln("Failed to transaction")
-	}
 	return err
 }
 
@@ -74,7 +67,6 @@ func (ss *SqlStore) save(ctx context.Context, pipeline string, msg *Message, f f
 func (ss *SqlStore) transaction(impl func(tx *sql.Tx) error) (err error) {
 	tx, err := ss.db.Begin()
 	if err != nil {
-		log.WithFields(log.Fields{"err": err}).Errorln("Failed to begin transaction")
 		return err
 	}
 	defer func() {
@@ -89,8 +81,10 @@ func (ss *SqlStore) transaction(impl func(tx *sql.Tx) error) (err error) {
 	}()
 	err = impl(tx)
 	if err == nil {
+		log.Debugln("Commit")
 		tx.Commit()
 	} else {
+		log.Debugln("Rollback")
 		tx.Rollback()
 	}
 	return err

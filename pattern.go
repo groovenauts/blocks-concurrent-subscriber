@@ -23,6 +23,7 @@ type Pattern struct {
 }
 
 func (p *Pattern) execute(msg *Message) error {
+	log.WithFields(log.Fields{"pattern": p}).Debugln("Executing command 0")
 	cmd, err := p.build(msg)
 	if err != nil {
 		return err
@@ -46,11 +47,20 @@ func (p *Pattern) match(msg *Message) bool {
 }
 
 func (p *Pattern) build(msg *Message) (*exec.Cmd, error) {
-	v := &bvariable.Variable{Data: msg.buildMap()}
+	// logAttrs is another object of msgMap.
+	// logAttrs is modified for log.
+	logAttrs := log.Fields(msg.buildMap())
+	msgMap := msg.buildMap()
+	v := &bvariable.Variable{Data: msgMap}
 	command := []string{}
 	for _, part := range p.Command {
+		logAttrs["template"] = part
+		log.WithFields(logAttrs).Debugln("Expanding variables")
 		expanded, err := v.Expand(part)
 		if err != nil {
+			logAttrs["error"] = err
+			logAttrs["template"] = part
+			log.WithFields(logAttrs).Errorln("Failed to expand variables")
 			return nil, err
 		}
 		command = append(command, expanded)
