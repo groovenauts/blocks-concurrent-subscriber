@@ -7,12 +7,12 @@
   "patterns": [
     {
       "completed": "true",
-      "command": ["bin/rails", "r", "Model.complete('%{msg.job_message_id}')"]
+      "command": ["bin/rails", "r", "Model.complete('%{job_message_id}')"]
     },
     {
       "level": "fatal",
       "completed": "false",
-      "command": ["bin/rails", "r", "Model.fatalError(%{msg.job_message_id}, '%{msg.data}')"]
+      "command": ["bin/rails", "r", "Model.fatalError(%{job_message_id}, '%{data}')"]
     }
   ]
 }

@@ -84,16 +84,16 @@ $ mysql -u root blocks_subscriber_example1 < migrations/up.sql
   "patterns": [
     {
       "completed": "true",
-      "command": ["examples/basic/app.sh", "COMPLETED", "%{msg.job_message_id}"]
+      "command": ["examples/basic/app.sh", "COMPLETED", "%{job_message_id}"]
     },
     {
       "level": "fatal",
       "completed": "false",
-      "command": ["examples/basic/recv.sh", "FATAL", "job_message_id: %{msg.job_message_id}, msg: %{msg.data}"]
+      "command": ["examples/basic/recv.sh", "FATAL", "job_message_id: %{job_message_id}, msg: %{data}"]
     },
     {
       "level": "error",
-      "command": ["examples/basic/recv.sh", "ERROR", "job_message_id: %{msg.job_message_id}, msg: %{msg.data}"]
+      "command": ["examples/basic/recv.sh", "ERROR", "job_message_id: %{job_message_id}, msg: %{data}"]
     }
   ]
 }
