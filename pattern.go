@@ -6,6 +6,8 @@ import (
 	"os/exec"
 
 	"github.com/groovenauts/blocks-variable"
+
+	log "github.com/Sirupsen/logrus"
 )
 
 var (
@@ -25,6 +27,7 @@ func (p *Pattern) execute(msg *Message) error {
 	if err != nil {
 		return err
 	}
+	log.WithFields(log.Fields{"cmd": cmd}).Debugln("Executing command")
 	return cmd.Run()
 }
 
@@ -82,12 +85,12 @@ func (pa Patterns) oneFor(msg *Message) *Pattern {
 }
 
 func (pa Patterns) execute(msg *Message) error {
-	for _, ptn := range pa {
-		if ptn.match(msg) {
-			err := ptn.execute(msg)
-			if err != nil {
-				return err
-			}
+	matched := pa.allFor(msg)
+	log.WithFields(log.Fields{"matched": matched, "msg": msg}).Debugln("Matched patterns")
+	for _, ptn := range matched {
+		err := ptn.execute(msg)
+		if err != nil {
+			return err
 		}
 	}
 	return nil

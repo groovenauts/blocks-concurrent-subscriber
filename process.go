@@ -77,8 +77,7 @@ func (p *Process) pullAndSave(ctx context.Context, subscription *Subscription) e
 			return err
 		}
 
-
-		log.WithFields(fields).Debugln("Message received")
+		log.WithFields(log.Fields(msg.buildMap())).Debugln("Message parsed")
 
 		err = p.messageStore.save(ctx, subscription.Pipeline, msg, func() error {
 			return p.patterns.execute(msg)
