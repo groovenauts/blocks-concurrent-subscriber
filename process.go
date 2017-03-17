@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/base64"
-	"fmt"
 
 	"golang.org/x/net/context"
 
@@ -38,7 +37,7 @@ type Subscription struct {
 func (p *Process) execute(ctx context.Context) error {
 	subscriptions, err := p.agentApi.getSubscriptions(ctx)
 	if err != nil {
-		fmt.Println("Process.execute() err: ", err)
+		log.Errorln("Process.execute() err: ", err)
 		return err
 	}
 	for _, sub := range subscriptions {

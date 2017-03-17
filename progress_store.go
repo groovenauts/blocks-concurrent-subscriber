@@ -2,12 +2,13 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
 	"runtime"
 
 	_ "github.com/go-sql-driver/mysql"
 
 	"golang.org/x/net/context"
+
+	log "github.com/Sirupsen/logrus"
 )
 
 const (
@@ -20,10 +21,10 @@ type SqlStore struct {
 }
 
 func (ss *SqlStore) setup(ctx context.Context, driver, datasource string) (func() error, error) {
-	fmt.Printf("Connecting to %v database by %v\n", driver, datasource)
+	log.Infof("Connecting to %v database by %v\n", driver, datasource)
 	db, err := sql.Open(driver, datasource)
 	if err != nil {
-		fmt.Println("Failed to get database connection for ", datasource, " cause of ", err)
+		log.WithFields(log.Fields{"datasource": datasource}).Errorln(err)
 		return nil, err
 	}
 	ss.db = db
@@ -31,28 +32,40 @@ func (ss *SqlStore) setup(ctx context.Context, driver, datasource string) (func(
 }
 
 func (ss *SqlStore) save(ctx context.Context, pipeline string, msg *Message, f func() error) error {
+	logAttrs := log.Fields(msg.buildMap())
 	err := ss.transaction(func(tx *sql.Tx) error {
+		logAttrs["SQL"] = SQL_UPDATE_JOBS
 		_, err := tx.Exec(SQL_UPDATE_JOBS, msg.progress, msg.msg_id, msg.progress)
 		if err != nil {
-			fmt.Printf("Failed to update pipeline_jobs job_message_id: %v to progress: %v cause of %v", msg.msg_id, msg.progress, err)
+			logAttrs["error"] = err
+			log.WithFields(logAttrs).Errorln("Failed to update pipeline_jobs")
 			return err
 		}
+		log.WithFields(logAttrs).Debugln("Update pipeline_jobs successfully")
 
+		logAttrs["SQL"] = SQL_INSERT_LOGS
 		_, err = tx.Exec(SQL_INSERT_LOGS, pipeline, msg.msg_id, msg.publishTime, msg.progress, msg.completedInt(), msg.level, msg.data)
 		if err != nil {
-			fmt.Printf("Failed to insert pipeline_job_logs pipeline: %v, job_message_id: %v, progress: %v cause of %v", pipeline, msg.msg_id, msg.progress, err)
+			logAttrs["error"] = err
+			log.WithFields(logAttrs).Errorln("Failed to insert into pipeline_job_logs")
 			return err
 		}
+		log.WithFields(logAttrs).Debugln("Insert into pipeline_job_logs successfully")
+		delete(logAttrs, "SQL")
 
 		if f != nil {
 			err = f()
+			if err != nil {
+				log.WithFields(logAttrs).Errorln("Error occurred in transaction")
+			}
 			return err
 		}
 
 		return nil
 	})
 	if err != nil {
-		fmt.Printf("Failed to begin a transaction job_message_id: %v to progress: %v cause of %v", msg.msg_id, msg.progress, err)
+		logAttrs["error"] = err
+		log.WithFields(logAttrs).Errorln("Failed to transaction")
 	}
 	return err
 }
@@ -61,12 +74,12 @@ func (ss *SqlStore) save(ctx context.Context, pipeline string, msg *Message, f f
 func (ss *SqlStore) transaction(impl func(tx *sql.Tx) error) (err error) {
 	tx, err := ss.db.Begin()
 	if err != nil {
-		fmt.Printf("Failed to begin transaction cause of %v\n", err)
+		log.WithFields(log.Fields{"err": err}).Errorln("Failed to begin transaction")
 		return err
 	}
 	defer func() {
 		if r := recover(); r != nil {
-			fmt.Printf("recover in SqlStore.transaction r: %v\n", r)
+			log.Errorln("recover in SqlStore.transaction r: ", r)
 			tx.Rollback()
 			if _, ok := r.(runtime.Error); ok {
 				panic(r)

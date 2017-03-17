@@ -26,30 +26,37 @@ func (ac *DefaultAgentClient) getSubscriptions(ctx context.Context) ([]*Subscrip
 	}
 
 	url := ac.httpUrl+"/pipelines/subscriptions"
+	logAttrs := log.Fields{"url": url}
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
+		log.WithFields(logAttrs).Errorln("Failed to http.NewRequest")
 		return nil, err
 	}
 	req.Header.Set("Authorization", "Bearer "+ac.httpToken)
 
 	resp, err := ac.httpRequester.Do(req)
 	if err != nil {
-		log.WithFields(log.Fields{"url": url}).Errorln(err)
+		logAttrs["error"] = err
+		log.WithFields(logAttrs).Errorln("Failed to send HTTP request")
 		return nil, err
 	}
 	defer resp.Body.Close()
 
-	log.WithFields(log.Fields{"url": url, "status": resp.StatusCode}).Debugln("GET OK")
+	logAttrs["status"] = resp.StatusCode
+	log.WithFields(logAttrs).Debugln("GET OK")
 
 	byteArray, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
+		logAttrs["error"] = err
+		log.WithFields(logAttrs).Errorln("Failed to read response body")
 		return nil, err
 	}
 
 	var subscriptions []Subscription
 	err = json.Unmarshal(byteArray, &subscriptions)
 	if err != nil {
-		log.WithFields(log.Fields{"url": url}).Errorln(err)
+		logAttrs["error"] = err
+		log.WithFields(logAttrs).Errorln("Failed to json.Unmarshal")
 		return nil, err
 	}
 	result := []*Subscription{}
