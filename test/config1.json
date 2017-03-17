@@ -3,6 +3,7 @@
   "agent-root-url": "https://blocks-concurrent-batch-agent-somewhere.com",
   "agent-root-token": "password1",
   "interval": 10,
+  "log-level": "debug",
   "patterns": [
     {
       "completed": "true",

@@ -14,6 +14,7 @@ type ProcessConfig struct {
 	AgentRootUrl   string     `json:"agent-root-url"`
 	AgentRootToken string     `json:"agent-root-token"`
 	Interval       int        `json:"interval"`
+	LogLevel       string     `json:"log-level"`
 	Patterns       []*Pattern `json:"patterns"`
 }
 
@@ -43,5 +44,10 @@ func LoadProcessConfig(path string) (*ProcessConfig, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	if res.LogLevel == "" {
+		res.LogLevel = "info"
+	}
+
 	return &res, nil
 }
