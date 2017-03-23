@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	log "github.com/Sirupsen/logrus"
 	"strconv"
 	"time"
 )
@@ -17,9 +17,14 @@ type Message struct {
 
 func (m *Message) load(attrs map[string]string) error {
 	m.msg_id = attrs["job_message_id"]
+	m.level = attrs["level"]
+	m.completed = attrs["completed"]
 	progress, err := strconv.Atoi(attrs["progress"])
 	if err != nil {
-		fmt.Printf("Failed to convert %v to int message_id: %v cause of %v", attrs["progress"], m.msg_id, err)
+		logAttrs := log.Fields(m.buildMap())
+		logAttrs["error"] = err
+		logAttrs["progress"] = attrs["progress"]
+		log.WithFields(logAttrs).Errorf("Failed to convert %q to int", attrs["progress"])
 		return err
 	}
 	m.progress = progress
@@ -31,7 +36,9 @@ func (m *Message) parse(publishTime string) error {
 	// A timestamp in RFC3339 UTC "Zulu" format, accurate to nanoseconds. Example: "2014-10-02T15:01:23.045123456Z".
 	t, err := time.Parse(time.RFC3339, publishTime)
 	if err != nil {
-		fmt.Printf("Failed to parse publishTime(%v) message_id: %v cause of %v", m.publishTime, m.msg_id, err)
+		logAttrs := log.Fields(m.buildMap())
+		logAttrs["error"] = err
+		log.WithFields(logAttrs).Errorf("Failed to time.Parse %q\n", publishTime)
 		return err
 	}
 	m.publishTime = t

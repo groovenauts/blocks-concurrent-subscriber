@@ -1,12 +1,12 @@
 package main
 
 import (
-	"log"
-
 	pubsub "google.golang.org/api/pubsub/v1"
 
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2/google"
+
+	log "github.com/Sirupsen/logrus"
 )
 
 type (
@@ -39,14 +39,14 @@ func (ps *PubsubSubscriber) setup(ctx context.Context) error {
 	// https://github.com/google/google-api-go-client#application-default-credentials-example
 	client, err := google.DefaultClient(ctx, pubsub.PubsubScope)
 	if err != nil {
-		log.Printf("Failed to create DefaultClient\n")
+		log.Errorf("Failed to create DefaultClient\n")
 		return err
 	}
 
 	// Creates a pubsubClient
 	service, err := pubsub.New(client)
 	if err != nil {
-		log.Printf("Failed to create pubsub.Service with %v: %v\n", client, err)
+		log.Errorf("Failed to create pubsub.Service with %v: %v\n", client, err)
 		return err
 	}
 
@@ -57,11 +57,11 @@ func (ps *PubsubSubscriber) setup(ctx context.Context) error {
 func (ps *PubsubSubscriber) subscribe(ctx context.Context, subscription *Subscription, f func(msg *pubsub.ReceivedMessage) error) error {
 	pullRequest := &pubsub.PullRequest{
 		ReturnImmediately: false,
-		// MaxMessages: 1,
+		MaxMessages:       10,
 	}
 	res, err := ps.puller.Pull(subscription.Name, pullRequest)
 	if err != nil {
-		log.Printf("Failed to pull: %v\n", err)
+		log.Errorf("Failed to pull: %v\n", err)
 		return err
 	}
 	for _, receivedMessage := range res.ReceivedMessages {
@@ -71,7 +71,7 @@ func (ps *PubsubSubscriber) subscribe(ctx context.Context, subscription *Subscri
 				log.Fatalf("Failed to acknowledge for message: %v cause of %v", receivedMessage, err)
 			}
 		} else {
-			log.Printf("the received request process returns error: %v", err)
+			log.Errorf("the received request process returns error: %v", err)
 		}
 	}
 	return nil

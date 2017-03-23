@@ -1,11 +1,13 @@
 package main
 
 import (
-	"fmt"
+	"encoding/base64"
 
 	"golang.org/x/net/context"
 
 	pubsub "google.golang.org/api/pubsub/v1"
+
+	log "github.com/Sirupsen/logrus"
 )
 
 type AgentApi interface {
@@ -35,7 +37,7 @@ type Subscription struct {
 func (p *Process) execute(ctx context.Context) error {
 	subscriptions, err := p.agentApi.getSubscriptions(ctx)
 	if err != nil {
-		fmt.Println("Process.execute() err: ", err)
+		log.Errorln("Process.execute() err: ", err)
 		return err
 	}
 	for _, sub := range subscriptions {
@@ -48,8 +50,24 @@ func (p *Process) pullAndSave(ctx context.Context, subscription *Subscription) e
 	err := p.subscriber.subscribe(ctx, subscription, func(recvMsg *pubsub.ReceivedMessage) error {
 		m := recvMsg.Message
 
-		msg := &Message{data: m.Data}
-		err := msg.load(m.Attributes)
+		fields := log.Fields{}
+		for k, v := range m.Attributes {
+			fields[k] = v
+		}
+
+		raw, err := base64.StdEncoding.DecodeString(m.Data)
+		if err != nil {
+			fields["rawdata"] = raw
+			log.WithFields(fields).Errorln("Message received but failed to decode", err)
+			return err
+		}
+
+		data := string(raw)
+		fields["data"] = data
+		log.WithFields(fields).Debugln("Message received")
+
+		msg := &Message{data: data}
+		err = msg.load(m.Attributes)
 		if err != nil {
 			return err
 		}
@@ -57,6 +75,9 @@ func (p *Process) pullAndSave(ctx context.Context, subscription *Subscription) e
 		if err != nil {
 			return err
 		}
+
+		log.WithFields(log.Fields(msg.buildMap())).Debugln("Message parsed")
+
 		err = p.messageStore.save(ctx, subscription.Pipeline, msg, func() error {
 			return p.patterns.execute(msg)
 		})

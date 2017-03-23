@@ -6,6 +6,8 @@ import (
 	"os/exec"
 
 	"github.com/groovenauts/blocks-variable"
+
+	log "github.com/Sirupsen/logrus"
 )
 
 var (
@@ -21,10 +23,12 @@ type Pattern struct {
 }
 
 func (p *Pattern) execute(msg *Message) error {
+	log.WithFields(log.Fields{"pattern": p}).Debugln("Executing command 0")
 	cmd, err := p.build(msg)
 	if err != nil {
 		return err
 	}
+	log.WithFields(log.Fields{"cmd": cmd}).Debugln("Executing command")
 	return cmd.Run()
 }
 
@@ -43,11 +47,20 @@ func (p *Pattern) match(msg *Message) bool {
 }
 
 func (p *Pattern) build(msg *Message) (*exec.Cmd, error) {
-	v := &bvariable.Variable{Data: msg.buildMap()}
+	// logAttrs is another object of msgMap.
+	// logAttrs is modified for log.
+	logAttrs := log.Fields(msg.buildMap())
+	msgMap := msg.buildMap()
+	v := &bvariable.Variable{Data: msgMap}
 	command := []string{}
 	for _, part := range p.Command {
+		logAttrs["template"] = part
+		log.WithFields(logAttrs).Debugln("Expanding variables")
 		expanded, err := v.Expand(part)
 		if err != nil {
+			logAttrs["error"] = err
+			logAttrs["template"] = part
+			log.WithFields(logAttrs).Errorln("Failed to expand variables")
 			return nil, err
 		}
 		command = append(command, expanded)
@@ -82,12 +95,12 @@ func (pa Patterns) oneFor(msg *Message) *Pattern {
 }
 
 func (pa Patterns) execute(msg *Message) error {
-	for _, ptn := range pa {
-		if ptn.match(msg) {
-			err := ptn.execute(msg)
-			if err != nil {
-				return err
-			}
+	matched := pa.allFor(msg)
+	log.WithFields(log.Fields{"matched": matched, "msg": msg}).Debugln("Matched patterns")
+	for _, ptn := range matched {
+		err := ptn.execute(msg)
+		if err != nil {
+			return err
 		}
 	}
 	return nil
