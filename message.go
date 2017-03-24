@@ -1,9 +1,10 @@
 package main
 
 import (
-	log "github.com/Sirupsen/logrus"
 	"strconv"
 	"time"
+
+	log "github.com/Sirupsen/logrus"
 )
 
 type Message struct {
