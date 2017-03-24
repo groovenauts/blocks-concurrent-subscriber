@@ -16,7 +16,7 @@ func main() {
 	app := cli.NewApp()
 	app.Name = "blocks-concurrent-subscriber"
 	app.Usage = "github.com/groovenauts/blocks-concurrent-subscriber"
-	app.Version = Version
+	app.Version = VERSION
 
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
