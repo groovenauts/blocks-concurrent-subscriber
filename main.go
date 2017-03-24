@@ -48,7 +48,7 @@ func executeCommand(c *cli.Context) error {
 
 	ctx := context.Background()
 
-	pubsubSubscriber := &PubsubSubscriber{}
+	pubsubSubscriber := &PubsubSubscriber{MessagePerPull: config.MessagePerPull}
 	err = pubsubSubscriber.setup(ctx)
 	if err != nil {
 		os.Exit(1)
