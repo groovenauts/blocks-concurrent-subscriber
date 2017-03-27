@@ -21,7 +21,7 @@ type (
 
 	PubsubSubscriber struct {
 		MessagePerPull int64
-		puller Puller
+		puller         Puller
 	}
 )
 
