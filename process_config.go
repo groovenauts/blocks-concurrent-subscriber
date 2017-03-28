@@ -13,6 +13,7 @@ type ProcessConfig struct {
 	Datasource     string     `json:"datasource"`
 	AgentRootUrl   string     `json:"agent-root-url"`
 	AgentRootToken string     `json:"agent-root-token"`
+	MessagePerPull int64      `json:"message-per-pull"`
 	Interval       int        `json:"interval"`
 	LogLevel       string     `json:"log-level"`
 	Patterns       []*Pattern `json:"patterns"`
@@ -47,6 +48,10 @@ func LoadProcessConfig(path string) (*ProcessConfig, error) {
 
 	if res.LogLevel == "" {
 		res.LogLevel = "info"
+	}
+
+	if res.MessagePerPull == 0 {
+		res.MessagePerPull = 10
 	}
 
 	return &res, nil

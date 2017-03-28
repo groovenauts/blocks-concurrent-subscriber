@@ -2,6 +2,7 @@
   "datasource": "root:@/database1",
   "agent-root-url": "https://blocks-concurrent-batch-agent-somewhere.com",
   "agent-root-token": "password1",
+  "message-per-pull": 100,
   "interval": 10,
   "log-level": "debug",
   "patterns": [
