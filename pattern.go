@@ -23,13 +23,24 @@ type Pattern struct {
 }
 
 func (p *Pattern) execute(msg *Message) error {
-	log.WithFields(log.Fields{"pattern": p}).Debugln("Executing command 0")
+	logAttrs := log.Fields{"pattern": p}
+	log.WithFields(logAttrs).Debugln("Executing command")
 	cmd, err := p.build(msg)
 	if err != nil {
+		logAttrs["error"] = err
+		log.WithFields(logAttrs).Errorln("Failed to build command")
 		return err
 	}
-	log.WithFields(log.Fields{"cmd": cmd}).Debugln("Executing command")
-	return cmd.Run()
+	logAttrs["cmd"] = cmd
+	log.WithFields(logAttrs).Debugln("Executing command")
+
+	err = cmd.Run()
+	if err != nil {
+		logAttrs["error"] = err
+		log.WithFields(logAttrs).Errorln("Command returned error")
+		return err
+	}
+	return nil
 }
 
 func (p *Pattern) match(msg *Message) bool {
