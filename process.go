@@ -37,8 +37,12 @@ type Subscription struct {
 func (p *Process) execute(ctx context.Context) error {
 	subscriptions, err := p.agentApi.getSubscriptions(ctx)
 	if err != nil {
-		log.Errorln("Process.execute() err: ", err)
-		return err
+		switch err.(type) {
+		case *InvalidHttpResponse:
+			return nil
+		default:
+			return err
+		}
 	}
 	for _, sub := range subscriptions {
 		p.pullAndSave(ctx, sub)

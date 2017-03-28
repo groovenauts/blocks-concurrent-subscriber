@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 
@@ -12,6 +13,15 @@ import (
 
 type HttpRequester interface {
 	Do(req *http.Request) (*http.Response, error)
+}
+
+type InvalidHttpResponse struct {
+	StatusCode int
+	Msg        string
+}
+
+func (e *InvalidHttpResponse) Error() string {
+	return fmt.Sprintf("%v %v", e.StatusCode, e.Msg)
 }
 
 type DefaultAgentClient struct {
@@ -43,6 +53,13 @@ func (ac *DefaultAgentClient) getSubscriptions(ctx context.Context) ([]*Subscrip
 	defer resp.Body.Close()
 
 	logAttrs["status"] = resp.StatusCode
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		err = &InvalidHttpResponse{StatusCode: resp.StatusCode, Msg: "Unexpected response"}
+		logAttrs["error"] = err
+		log.WithFields(logAttrs).Warnln("Server returned error")
+		return nil, err
+	}
+
 	log.WithFields(logAttrs).Debugln("GET OK")
 
 	byteArray, err := ioutil.ReadAll(resp.Body)
