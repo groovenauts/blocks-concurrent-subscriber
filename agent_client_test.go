@@ -17,7 +17,7 @@ func (dh *DummyHttp) Do(req *http.Request) (*http.Response, error) {
 	resp := `[{"pipeline":"pipeline01","subscription":"pipeline01-progress-subscription"}]`
 	return &http.Response{
 		StatusCode: 200,
-		Body: ioutil.NopCloser(strings.NewReader(resp)),
+		Body:       ioutil.NopCloser(strings.NewReader(resp)),
 	}, nil
 }
 
