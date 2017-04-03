@@ -66,7 +66,7 @@ func (ps *PubsubSubscriber) subscribe(ctx context.Context, subscription *Subscri
 		return err
 	}
 	for _, receivedMessage := range res.ReceivedMessages {
-		err := processProgressNotification(ctx, receivedMessage, f)
+		err := ps.processProgressNotification(ctx, subscription, receivedMessage, f)
 		if err != nil {
 			return err
 		}
@@ -74,7 +74,7 @@ func (ps *PubsubSubscriber) subscribe(ctx context.Context, subscription *Subscri
 	return nil
 }
 
-func (ps *PubsubSubscriber) processProgressNotification(ctx context.Context, receivedMessage *pubsub.ReceivedMessage, f func(msg *pubsub.ReceivedMessage) error) error {
+func (ps *PubsubSubscriber) processProgressNotification(ctx context.Context, subscription *Subscription, receivedMessage *pubsub.ReceivedMessage, f func(msg *pubsub.ReceivedMessage) error) error {
 	err := f(receivedMessage)
 	if err != nil {
 		log.Errorf("the received request process returns error: [%T] %v", err, err)
