@@ -25,13 +25,12 @@ func (e *InvalidHttpResponse) Error() string {
 }
 
 type InvalidPipeline struct {
-	Msg        string
+	Msg string
 }
 
 func (e *InvalidPipeline) Error() string {
 	return e.Msg
 }
-
 
 type DefaultAgentClient struct {
 	httpRequester HttpRequester
@@ -73,7 +72,7 @@ func (ac *DefaultAgentClient) getSubscriptions(ctx context.Context) ([]*Subscrip
 func (ac *DefaultAgentClient) getPipelineStatus(ctx context.Context, id string) (int, error) {
 	url := ac.httpUrl + "/pipelines/" + id
 	var obj map[string]interface{}
-	var res int;
+	var res int
 	err := ac.processRequest(ctx, url, func(body []byte, logAttrs log.Fields) error {
 		err := json.Unmarshal(body, &obj)
 		if err != nil {
