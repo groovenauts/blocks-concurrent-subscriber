@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"net/http"
 	"testing"
 
 	pubsub "google.golang.org/api/pubsub/v1"
@@ -95,6 +96,14 @@ func TestProcessProgressNotification(t *testing.T) {
 	dp.Error = fmt.Errorf("ack-error")
 	subscription.isOpened = func() (bool, error) {
 		return false, nil // closing
+	}
+	err = ps.processProgressNotification(ctx, subscription, recvMsg, returnNil)
+	assert.NoError(t, err)
+
+	// Ack error and fail to get pipeline status because the pipeline is already deleted
+	dp.Error = fmt.Errorf("ack-error")
+	subscription.isOpened = func() (bool, error) {
+		return false, &InvalidHttpResponse{StatusCode: http.StatusNotFound, Msg: "Already removed"}
 	}
 	err = ps.processProgressNotification(ctx, subscription, recvMsg, returnNil)
 	assert.NoError(t, err)
