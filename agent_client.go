@@ -31,16 +31,38 @@ type DefaultAgentClient struct {
 }
 
 func (ac *DefaultAgentClient) getSubscriptions(ctx context.Context) ([]*Subscription, error) {
+	url := ac.httpUrl + "/pipelines/subscriptions"
+
+	var subscriptions []Subscription
+	err := ac.processRequest(ctx, url, func(body []byte, logAttrs log.Fields) error {
+		err := json.Unmarshal(body, &subscriptions)
+		if err != nil {
+			logAttrs["error"] = err
+			log.WithFields(logAttrs).Errorln("Failed to json.Unmarshal")
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	result := []*Subscription{}
+	for _, subscription := range subscriptions {
+		result = append(result, &subscription)
+	}
+	return result, nil
+}
+
+func (ac *DefaultAgentClient) processRequest(ctx context.Context, url string, f func([]byte, log.Fields) error) error {
 	if ac.httpRequester == nil {
 		ac.httpRequester = new(http.Client)
 	}
-
-	url := ac.httpUrl + "/pipelines/subscriptions"
 	logAttrs := log.Fields{"url": url}
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		log.WithFields(logAttrs).Errorln("Failed to http.NewRequest")
-		return nil, err
+		return err
 	}
 	req.Header.Set("Authorization", "Bearer "+ac.httpToken)
 
@@ -48,7 +70,7 @@ func (ac *DefaultAgentClient) getSubscriptions(ctx context.Context) ([]*Subscrip
 	if err != nil {
 		logAttrs["error"] = err
 		log.WithFields(logAttrs).Errorln("Failed to send HTTP request")
-		return nil, err
+		return err
 	}
 	defer resp.Body.Close()
 
@@ -57,7 +79,7 @@ func (ac *DefaultAgentClient) getSubscriptions(ctx context.Context) ([]*Subscrip
 		err = &InvalidHttpResponse{StatusCode: resp.StatusCode, Msg: "Unexpected response"}
 		logAttrs["error"] = err
 		log.WithFields(logAttrs).Warnln("Server returned error")
-		return nil, err
+		return err
 	}
 
 	log.WithFields(logAttrs).Debugln("GET OK")
@@ -66,19 +88,8 @@ func (ac *DefaultAgentClient) getSubscriptions(ctx context.Context) ([]*Subscrip
 	if err != nil {
 		logAttrs["error"] = err
 		log.WithFields(logAttrs).Errorln("Failed to read response body")
-		return nil, err
+		return err
 	}
 
-	var subscriptions []Subscription
-	err = json.Unmarshal(byteArray, &subscriptions)
-	if err != nil {
-		logAttrs["error"] = err
-		log.WithFields(logAttrs).Errorln("Failed to json.Unmarshal")
-		return nil, err
-	}
-	result := []*Subscription{}
-	for _, subscription := range subscriptions {
-		result = append(result, &subscription)
-	}
-	return result, nil
+	return f(byteArray, logAttrs)
 }
