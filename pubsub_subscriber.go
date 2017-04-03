@@ -100,6 +100,7 @@ func (ps *PubsubSubscriber) processProgressNotification(ctx context.Context, sub
 			return err
 		} else {
 			log.Infof("Skipping acknowledgement to pipeline: %v because the pipeline isn't opened.", subscription.Pipeline)
+			return nil
 		}
 	}
 	return nil
