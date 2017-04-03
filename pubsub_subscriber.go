@@ -80,7 +80,8 @@ func (ps *PubsubSubscriber) processProgressNotification(ctx context.Context, rec
 		log.Errorf("the received request process returns error: [%T] %v", err, err)
 		return err
 	}
-	if _, err = ps.puller.Acknowledge(subscription.Name, receivedMessage.AckId); err != nil {
+	_, err = ps.puller.Acknowledge(subscription.Name, receivedMessage.AckId)
+	if err != nil {
 		log.Infof("Failed to acknowledge for message: %v cause of [%T] %v", receivedMessage, err, err)
 		opened, err2 := subscription.isOpened()
 		if err2 != nil {
