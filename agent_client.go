@@ -24,6 +24,15 @@ func (e *InvalidHttpResponse) Error() string {
 	return fmt.Sprintf("%v %v", e.StatusCode, e.Msg)
 }
 
+type InvalidPipeline struct {
+	Msg        string
+}
+
+func (e *InvalidPipeline) Error() string {
+	return e.Msg
+}
+
+
 type DefaultAgentClient struct {
 	httpRequester HttpRequester
 	httpUrl       string
@@ -52,6 +61,39 @@ func (ac *DefaultAgentClient) getSubscriptions(ctx context.Context) ([]*Subscrip
 		result = append(result, &subscription)
 	}
 	return result, nil
+}
+
+func (ac *DefaultAgentClient) getPipelineStatus(ctx context.Context, id string) (int, error) {
+	url := ac.httpUrl + "/pipelines/" + id
+	var obj map[string]interface{}
+	var res int;
+	err := ac.processRequest(ctx, url, func(body []byte, logAttrs log.Fields) error {
+		err := json.Unmarshal(body, &obj)
+		if err != nil {
+			logAttrs["error"] = err
+			log.WithFields(logAttrs).Errorln("Failed to json.Unmarshal")
+			return err
+		}
+		st, ok := obj["status"]
+		if !ok {
+			return &InvalidPipeline{Msg: "Response has no status"}
+		}
+		// json.Unmarshal uses float64 for JSON numbers
+		// https://golang.org/pkg/encoding/json/#Unmarshal
+		switch st.(type) {
+		case float64:
+			res = int(st.(float64))
+			return nil
+		default:
+			return &InvalidPipeline{
+				Msg: fmt.Sprintf("Status is expected a float64 but it was [%T] %v", st, st),
+			}
+		}
+	})
+	if err != nil {
+		return 0, err
+	}
+	return res, nil
 }
 
 func (ac *DefaultAgentClient) processRequest(ctx context.Context, url string, f func([]byte, log.Fields) error) error {
