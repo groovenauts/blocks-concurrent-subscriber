@@ -76,7 +76,10 @@ func (ps *PubsubSubscriber) subscribe(ctx context.Context, subscription *Subscri
 
 func (ps *PubsubSubscriber) processProgressNotification(ctx context.Context, receivedMessage *pubsub.ReceivedMessage, f func(msg *pubsub.ReceivedMessage) error) error {
 	err := f(receivedMessage)
-	if err == nil {
+	if err != nil {
+		log.Errorf("the received request process returns error: [%T] %v", err, err)
+		return err
+	}
 		if _, err = ps.puller.Acknowledge(subscription.Name, receivedMessage.AckId); err != nil {
 			log.Infof("Failed to acknowledge for message: %v cause of [%T] %v", receivedMessage, err, err)
 			opened, err2 := subscription.isOpened()
@@ -90,9 +93,5 @@ func (ps *PubsubSubscriber) processProgressNotification(ctx context.Context, rec
 				log.Infof("Skipping acknowledgement to pipeline: %v because the ipeline isn't opened.", subscription.Pipeline)
 			}
 		}
-	} else {
-		log.Errorf("the received request process returns error: [%T] %v", err, err)
-		return err
-	}
 	return nil
 }
