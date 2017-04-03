@@ -58,6 +58,13 @@ func (ac *DefaultAgentClient) getSubscriptions(ctx context.Context) ([]*Subscrip
 
 	result := []*Subscription{}
 	for _, subscription := range subscriptions {
+		subscription.isOpened = func() (bool, error) {
+			st, err := ac.getPipelineStatus(ctx, subscription.PipelineID)
+			if err != nil {
+				return false, err
+			}
+			return st == 4, nil
+		}
 		result = append(result, &subscription)
 	}
 	return result, nil

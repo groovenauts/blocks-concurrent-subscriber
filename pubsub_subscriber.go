@@ -62,17 +62,25 @@ func (ps *PubsubSubscriber) subscribe(ctx context.Context, subscription *Subscri
 	}
 	res, err := ps.puller.Pull(subscription.Name, pullRequest)
 	if err != nil {
-		log.Errorf("Failed to pull: %v\n", err)
+		log.Errorf("Failed to pull: [%T] %v\n", err, err)
 		return err
 	}
 	for _, receivedMessage := range res.ReceivedMessages {
 		err := f(receivedMessage)
 		if err == nil {
 			if _, err = ps.puller.Acknowledge(subscription.Name, receivedMessage.AckId); err != nil {
-				log.Fatalf("Failed to acknowledge for message: %v cause of %v", receivedMessage, err)
+				log.Infof("Failed to acknowledge for message: %v cause of [%T] %v", receivedMessage, err, err)
+				opened, err2 := subscription.isOpened()
+				if err2 != nil {
+					log.Errorf("Failed to check if the pipeline is alive because of [%T] %v for pipeline: %v", err2, err2, subscription.Pipeline)
+				} else if opened {
+					log.Errorf("Failed to acknowledge for message: %v cause of [%T] %v", receivedMessage, err, err)
+				} else {
+					log.Infof("Skipping acknowledgement to pipeline: %v because the ipeline isn't opened.", subscription.Pipeline)
+				}
 			}
 		} else {
-			log.Errorf("the received request process returns error: %v", err)
+			log.Errorf("the received request process returns error: [%T] %v", err, err)
 		}
 	}
 	return nil

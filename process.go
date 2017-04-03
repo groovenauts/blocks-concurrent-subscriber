@@ -30,8 +30,10 @@ type Process struct {
 }
 
 type Subscription struct {
-	Pipeline string `json:"pipeline"`
-	Name     string `json:"subscription"`
+	PipelineID string `json:"pipeline_id"`
+	Pipeline   string `json:"pipeline"`
+	Name       string `json:"subscription"`
+	isOpened   func() (bool, error)
 }
 
 func (p *Process) execute(ctx context.Context) error {
