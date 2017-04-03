@@ -85,7 +85,7 @@ func (ps *PubsubSubscriber) processProgressNotification(ctx context.Context, sub
 		log.Infof("Failed to acknowledge for message: %v cause of [%T] %v", receivedMessage, err, err)
 		opened, err2 := subscription.isOpened()
 		if err2 != nil {
-			log.Errorf("Failed to check if the pipeline is alive because of [%T] %v for pipeline: %v", err2, err2, subscription.Pipeline)
+			log.Errorf("Failed to check if the pipeline is opened because of [%T] %v for pipeline: %v", err2, err2, subscription.Pipeline)
 			return err2
 		} else if opened {
 			log.Errorf("Failed to acknowledge for message: %v cause of [%T] %v", receivedMessage, err, err)
