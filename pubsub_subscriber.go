@@ -75,24 +75,24 @@ func (ps *PubsubSubscriber) subscribe(ctx context.Context, subscription *Subscri
 }
 
 func (ps *PubsubSubscriber) processProgressNotification(ctx context.Context, receivedMessage *pubsub.ReceivedMessage, f func(msg *pubsub.ReceivedMessage) error) error {
-		err := f(receivedMessage)
-		if err == nil {
-			if _, err = ps.puller.Acknowledge(subscription.Name, receivedMessage.AckId); err != nil {
-				log.Infof("Failed to acknowledge for message: %v cause of [%T] %v", receivedMessage, err, err)
-				opened, err2 := subscription.isOpened()
-				if err2 != nil {
-					log.Errorf("Failed to check if the pipeline is alive because of [%T] %v for pipeline: %v", err2, err2, subscription.Pipeline)
-					return err2
-				} else if opened {
-					log.Errorf("Failed to acknowledge for message: %v cause of [%T] %v", receivedMessage, err, err)
-					return err
-				} else {
-					log.Infof("Skipping acknowledgement to pipeline: %v because the ipeline isn't opened.", subscription.Pipeline)
-				}
+	err := f(receivedMessage)
+	if err == nil {
+		if _, err = ps.puller.Acknowledge(subscription.Name, receivedMessage.AckId); err != nil {
+			log.Infof("Failed to acknowledge for message: %v cause of [%T] %v", receivedMessage, err, err)
+			opened, err2 := subscription.isOpened()
+			if err2 != nil {
+				log.Errorf("Failed to check if the pipeline is alive because of [%T] %v for pipeline: %v", err2, err2, subscription.Pipeline)
+				return err2
+			} else if opened {
+				log.Errorf("Failed to acknowledge for message: %v cause of [%T] %v", receivedMessage, err, err)
+				return err
+			} else {
+				log.Infof("Skipping acknowledgement to pipeline: %v because the ipeline isn't opened.", subscription.Pipeline)
 			}
-		} else {
-			log.Errorf("the received request process returns error: [%T] %v", err, err)
-			return err
 		}
-    return nil
+	} else {
+		log.Errorf("the received request process returns error: [%T] %v", err, err)
+		return err
+	}
+	return nil
 }
