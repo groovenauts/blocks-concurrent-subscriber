@@ -62,17 +62,45 @@ func (ps *PubsubSubscriber) subscribe(ctx context.Context, subscription *Subscri
 	}
 	res, err := ps.puller.Pull(subscription.Name, pullRequest)
 	if err != nil {
-		log.Errorf("Failed to pull: %v\n", err)
+		log.Errorf("Failed to pull: [%T] %v\n", err, err)
 		return err
 	}
 	for _, receivedMessage := range res.ReceivedMessages {
-		err := f(receivedMessage)
-		if err == nil {
-			if _, err = ps.puller.Acknowledge(subscription.Name, receivedMessage.AckId); err != nil {
-				log.Fatalf("Failed to acknowledge for message: %v cause of %v", receivedMessage, err)
+		err := ps.processProgressNotification(ctx, subscription, receivedMessage, f)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (ps *PubsubSubscriber) processProgressNotification(ctx context.Context, subscription *Subscription, receivedMessage *pubsub.ReceivedMessage, f func(msg *pubsub.ReceivedMessage) error) error {
+	err := f(receivedMessage)
+	if err != nil {
+		log.Errorf("the received request process returns error: [%T] %v", err, err)
+		return err
+	}
+	_, err = ps.puller.Acknowledge(subscription.Name, receivedMessage.AckId)
+	if err != nil {
+		log.Infof("Failed to acknowledge for message: %v cause of [%T] %v", receivedMessage, err, err)
+		opened, err2 := subscription.isOpened()
+		if err2 != nil {
+			switch err2.(type) {
+			case *InvalidHttpResponse:
+				e := err2.(*InvalidHttpResponse)
+				if e.StatusCode == 404 {
+					log.Infof("Skipping acknowledgement to pipeline: %v because the pipeline must be removed", subscription.Pipeline)
+					return nil
+				}
 			}
+			log.Errorf("Failed to check if the pipeline is opened because of [%T] %v for pipeline: %v", err2, err2, subscription.Pipeline)
+			return err2
+		} else if opened {
+			log.Errorf("Failed to acknowledge for message: %v cause of [%T] %v", receivedMessage, err, err)
+			return err
 		} else {
-			log.Errorf("the received request process returns error: %v", err)
+			log.Infof("Skipping acknowledgement to pipeline: %v because the pipeline isn't opened.", subscription.Pipeline)
+			return nil
 		}
 	}
 	return nil

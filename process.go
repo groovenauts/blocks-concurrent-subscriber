@@ -30,15 +30,21 @@ type Process struct {
 }
 
 type Subscription struct {
-	Pipeline string `json:"pipeline"`
-	Name     string `json:"subscription"`
+	PipelineID string `json:"pipeline_id"`
+	Pipeline   string `json:"pipeline"`
+	Name       string `json:"subscription"`
+	isOpened   func() (bool, error)
 }
 
 func (p *Process) execute(ctx context.Context) error {
 	subscriptions, err := p.agentApi.getSubscriptions(ctx)
 	if err != nil {
-		log.Errorln("Process.execute() err: ", err)
-		return err
+		switch err.(type) {
+		case *InvalidHttpResponse:
+			return nil
+		default:
+			return err
+		}
 	}
 	for _, sub := range subscriptions {
 		p.pullAndSave(ctx, sub)

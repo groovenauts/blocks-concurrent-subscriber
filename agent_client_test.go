@@ -16,7 +16,8 @@ type DummyHttp struct{}
 func (dh *DummyHttp) Do(req *http.Request) (*http.Response, error) {
 	resp := `[{"pipeline":"pipeline01","subscription":"pipeline01-progress-subscription"}]`
 	return &http.Response{
-		Body: ioutil.NopCloser(strings.NewReader(resp)),
+		StatusCode: 200,
+		Body:       ioutil.NopCloser(strings.NewReader(resp)),
 	}, nil
 }
 
