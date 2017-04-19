@@ -77,7 +77,7 @@ $ mysql -u root blocks_subscriber_example1 < migrations/up.sql
 
 ```json
 {
-  "datasource": "root:@/blocks_subscriber_example1",
+  "datasource": "root:@/blocks_subscriber_example1?parseTime=true",
   "agent-root-url": "[the token you got before]",
   "agent-root-token": "[the host name you deployed]",
   "interval": 10,
