@@ -29,14 +29,16 @@ type PipelineJob struct {
 	pipeline       string
 	job_message_id string
 	progress       int
+	created_at     *time.Time
+	updated_at     *time.Time
 }
 
-const PIPELINE_JOBS_QUERY_BASE = "SELECT id, pipeline, job_message_id, progress FROM pipeline_jobs "
+const PIPELINE_JOBS_QUERY_BASE = "SELECT id, pipeline, job_message_id, progress, created_at, updated_at FROM pipeline_jobs "
 
 func queryPipelineJob(db *sql.DB, where string, args ...interface{}) (*PipelineJob, error) {
 	r := PipelineJob{}
 	sql := PIPELINE_JOBS_QUERY_BASE + where
-	err := db.QueryRow(sql, args...).Scan(&r.id, &r.pipeline, &r.job_message_id, &r.progress)
+	err := db.QueryRow(sql, args...).Scan(&r.id, &r.pipeline, &r.job_message_id, &r.progress, &r.created_at, &r.updated_at)
 	return &r, err
 }
 
@@ -79,12 +81,14 @@ func TestProgressStoreSave(t *testing.T) {
 	pl, err := queryPipelineJob(db, "WHERE pipeline='pipeline01' AND job_message_id=?", msg.msg_id)
 	assert.NoError(t, err)
 	assert.Equal(t, 1, pl.progress)
+	assert.Equal(t, pl.created_at.UnixNano(), pl.updated_at.UnixNano())
 
 	store.save(ctx, "pipeline01", msg, extra)
 
 	pl, err = queryPipelineJob(db, "WHERE pipeline='pipeline01' AND job_message_id=?", msg.msg_id)
 	assert.NoError(t, err)
 	assert.Equal(t, 2, pl.progress)
+	assert.True(t, pl.created_at.UnixNano() != pl.updated_at.UnixNano())
 
 	msg = &Message{
 		msg_id:      "jm04",
