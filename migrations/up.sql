@@ -3,6 +3,8 @@ CREATE TABLE `pipeline_jobs` (
   `pipeline` varchar(255) NOT NULL,
   `job_message_id` varchar(255) DEFAULT NULL,
   `progress` int(11) NOT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
