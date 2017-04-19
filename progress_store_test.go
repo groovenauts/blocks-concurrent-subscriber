@@ -83,12 +83,13 @@ func TestProgressStoreSave(t *testing.T) {
 	assert.Equal(t, 1, pl.progress)
 	assert.Equal(t, pl.created_at.UnixNano(), pl.updated_at.UnixNano())
 
+	time.Sleep(100 * time.Millisecond) // To make difference between updated_at and created_at
 	store.save(ctx, "pipeline01", msg, extra)
 
 	pl, err = queryPipelineJob(db, "WHERE pipeline='pipeline01' AND job_message_id=?", msg.msg_id)
 	assert.NoError(t, err)
 	assert.Equal(t, 2, pl.progress)
-	assert.True(t, pl.created_at.UnixNano() != pl.updated_at.UnixNano())
+	assert.NotEqual(t, pl.created_at.UnixNano(), pl.updated_at.UnixNano())
 
 	msg = &Message{
 		msg_id:      "jm04",
