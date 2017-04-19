@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	TEST_DATASOURCE = "root:@/blocks_subscriber_test"
+	TEST_DATASOURCE = "root:@/blocks_subscriber_test?parseTime=true"
 )
 
 func assertCount(t *testing.T, db *sql.DB, expected int, sql string, args ...interface{}) bool {
