@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"runtime"
+	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 
@@ -12,7 +13,7 @@ import (
 )
 
 const (
-	SQL_UPDATE_JOBS = "UPDATE pipeline_jobs SET progress = ? WHERE job_message_id = ? AND progress < ?"
+	SQL_UPDATE_JOBS = "UPDATE pipeline_jobs SET progress = ?, updated_at = ? WHERE job_message_id = ? AND progress < ?"
 	SQL_INSERT_LOGS = "INSERT INTO pipeline_job_logs (pipeline, job_message_id, publish_time, progress, completed, log_level, log_message) VALUES (?, ?, ?, ?, ?, ?, ?)"
 )
 
@@ -35,7 +36,7 @@ func (ss *SqlStore) save(ctx context.Context, pipeline string, msg *Message, f f
 	logAttrs := log.Fields(msg.buildMap())
 	err := ss.transaction(func(tx *sql.Tx) error {
 		logAttrs["SQL"] = SQL_UPDATE_JOBS
-		_, err := tx.Exec(SQL_UPDATE_JOBS, msg.progress, msg.msg_id, msg.progress)
+		_, err := tx.Exec(SQL_UPDATE_JOBS, msg.progress, time.Now(), msg.msg_id, msg.progress)
 		if err != nil {
 			logAttrs["error"] = err
 			log.WithFields(logAttrs).Errorln("Failed to update pipeline_jobs")

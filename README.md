@@ -28,7 +28,7 @@ $ blocks-concurrent-subscriber \
 `datasource` must be a string to connect your MySQL database like this:
 
 ```
-"user:password@/dbname"
+"user:password@/dbname?parseTime=true"
 ```
 
 See https://github.com/go-sql-driver/mysql#usage for more detail.

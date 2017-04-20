@@ -1,5 +1,5 @@
 {
-  "datasource": "root:@/database1",
+  "datasource": "root:@/database1?parseTime=true",
   "agent-root-url": "https://blocks-concurrent-batch-agent-somewhere.com",
   "agent-root-token": "password1",
   "message-per-pull": 100,
