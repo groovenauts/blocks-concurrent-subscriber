@@ -37,7 +37,7 @@ type Subscription struct {
 }
 
 func (p *Process) execute(ctx context.Context) error {
-	subscriptions := []*Subscription{}
+	targets := []*Subscription{}
 	if p.agentApi != nil {
 		subsFromAgent, err := p.agentApi.getSubscriptions(ctx)
 		if err != nil {
@@ -48,9 +48,9 @@ func (p *Process) execute(ctx context.Context) error {
 				return err
 			}
 		}
-		subscriptions = append(subscriptions, subsFromAgent...)
+		targets = append(targets, subsFromAgent...)
 	}
-	for _, sub := range subscriptions {
+	for _, sub := range targets {
 		p.pullAndSave(ctx, sub)
 	}
 	return nil
