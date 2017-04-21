@@ -10,13 +10,13 @@ import (
 )
 
 type ProcessConfig struct {
-	Datasource     string     `json:"datasource"`
-	Agent          *AgentConfig `json:"agent,omitempty"`
+	Datasource     string          `json:"datasource"`
+	Agent          *AgentConfig    `json:"agent,omitempty"`
 	Subscriptions  []*Subscription `json:"subscriptions,omitempty"`
-	MessagePerPull int64      `json:"message-per-pull"`
-	Interval       int        `json:"interval"`
-	LogLevel       string     `json:"log-level"`
-	Patterns       []*Pattern `json:"patterns"`
+	MessagePerPull int64           `json:"message-per-pull"`
+	Interval       int             `json:"interval"`
+	LogLevel       string          `json:"log-level"`
+	Patterns       []*Pattern      `json:"patterns"`
 }
 
 func LoadProcessConfig(path string) (*ProcessConfig, error) {

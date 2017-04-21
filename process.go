@@ -39,15 +39,15 @@ type Subscription struct {
 func (p *Process) execute(ctx context.Context) error {
 	subscriptions := []*Subscription{}
 	if p.agentApi != nil {
-	subsFromAgent, err := p.agentApi.getSubscriptions(ctx)
-	if err != nil {
-		switch err.(type) {
-		case *InvalidHttpResponse:
-			return nil
-		default:
-			return err
+		subsFromAgent, err := p.agentApi.getSubscriptions(ctx)
+		if err != nil {
+			switch err.(type) {
+			case *InvalidHttpResponse:
+				return nil
+			default:
+				return err
+			}
 		}
-	}
 		subscriptions = append(subscriptions, subsFromAgent...)
 	}
 	for _, sub := range subscriptions {
