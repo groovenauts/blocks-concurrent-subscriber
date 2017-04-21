@@ -54,12 +54,16 @@ func LoadProcessConfig(path string) (*ProcessConfig, error) {
 		}
 	}
 
-	if res.LogLevel == "" {
-		res.LogLevel = "info"
-	}
-
 	if res.MessagePerPull == 0 {
 		res.MessagePerPull = 10
+	}
+
+	if res.Interval == 0 {
+		res.Interval = 10
+	}
+
+	if res.LogLevel == "" {
+		res.LogLevel = "info"
 	}
 
 	return &res, nil
