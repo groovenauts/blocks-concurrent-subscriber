@@ -32,14 +32,18 @@ func (e *InvalidPipeline) Error() string {
 	return e.Msg
 }
 
+type AgentConfig struct {
+	RootUrl string `json:"root-url"`
+	Token   string `json:"token"`
+}
+
 type DefaultAgentClient struct {
 	httpRequester HttpRequester
-	httpUrl       string
-	httpToken     string
+	config        *AgentConfig
 }
 
 func (ac *DefaultAgentClient) getSubscriptions(ctx context.Context) ([]*Subscription, error) {
-	url := ac.httpUrl + "/pipelines/subscriptions"
+	url := ac.config.RootUrl + "/pipelines/subscriptions"
 
 	var subscriptions []Subscription
 	err := ac.processRequest(ctx, url, func(body []byte, logAttrs log.Fields) error {
@@ -70,7 +74,7 @@ func (ac *DefaultAgentClient) getSubscriptions(ctx context.Context) ([]*Subscrip
 }
 
 func (ac *DefaultAgentClient) getPipelineStatus(ctx context.Context, id string) (int, error) {
-	url := ac.httpUrl + "/pipelines/" + id
+	url := ac.config.RootUrl + "/pipelines/" + id
 	var obj map[string]interface{}
 	var res int
 	err := ac.processRequest(ctx, url, func(body []byte, logAttrs log.Fields) error {
@@ -112,7 +116,7 @@ func (ac *DefaultAgentClient) processRequest(ctx context.Context, url string, f 
 		log.WithFields(logAttrs).Errorln("Failed to http.NewRequest")
 		return err
 	}
-	req.Header.Set("Authorization", "Bearer "+ac.httpToken)
+	req.Header.Set("Authorization", "Bearer "+ac.config.Token)
 
 	resp, err := ac.httpRequester.Do(req)
 	if err != nil {

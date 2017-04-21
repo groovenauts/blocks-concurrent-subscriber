@@ -24,8 +24,10 @@ func (dh *DummyHttp) Do(req *http.Request) (*http.Response, error) {
 func TestGetSubscriptions(t *testing.T) {
 	ac := &DefaultAgentClient{
 		httpRequester: &DummyHttp{},
-		httpUrl:       "http://somewhere",
-		httpToken:     "DUMMY-TOKEN",
+		config: &AgentConfig{
+			RootUrl: "http://somewhere",
+			Token:   "DUMMY-TOKEN",
+		},
 	}
 	ctx := context.Background()
 	subscriptions, err := ac.getSubscriptions(ctx)

@@ -11,8 +11,7 @@ import (
 
 type ProcessConfig struct {
 	Datasource     string     `json:"datasource"`
-	AgentRootUrl   string     `json:"agent-root-url"`
-	AgentRootToken string     `json:"agent-root-token"`
+	Agent          *AgentConfig `json:"agent,omitempty"`
 	MessagePerPull int64      `json:"message-per-pull"`
 	Interval       int        `json:"interval"`
 	LogLevel       string     `json:"log-level"`
