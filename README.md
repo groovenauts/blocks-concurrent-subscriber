@@ -1,4 +1,4 @@
-# blocks-concurrent-batch-subscriber
+# blocks-concurrent-subscriber
 
 [![Build Status](https://secure.travis-ci.org/groovenauts/blocks-concurrent-subscriber.png)](https://travis-ci.org/groovenauts/blocks-concurrent-subscriber)
 
