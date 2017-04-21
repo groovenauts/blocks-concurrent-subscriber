@@ -61,11 +61,12 @@ func executeCommand(c *cli.Context) error {
 	}
 	defer cb()
 
+	agentClient := &DefaultAgentClient{
+		config: config.Agent,
+	}
 	for {
 		p := &Process{
-			agentApi: &DefaultAgentClient{
-				config: config.Agent,
-			},
+			agentApi:     agentClient,
 			subscriber:   pubsubSubscriber,
 			messageStore: store,
 			patterns:     config.Patterns,
