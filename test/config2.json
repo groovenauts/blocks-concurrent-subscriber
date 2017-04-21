@@ -1,9 +1,15 @@
 {
   "datasource": "root:@/database1?parseTime=true",
-  "agent": {
-    "root-url": "https://blocks-concurrent-batch-agent-somewhere.com",
-    "token": "password1"
-  },
+  "subscriptions": [
+    {
+      "pipeline": "pipeline1",
+      "subscription": "projects/proj-dummy-999/subscriptions/pipeline1-progress-subscription"
+    },
+    {
+      "pipeline": "pipeline2",
+      "subscription": "projects/proj-dummy-999/subscriptions/pipeline2-progress-subscription"
+    }
+  ],
   "message-per-pull": 100,
   "interval": 10,
   "log-level": "debug",

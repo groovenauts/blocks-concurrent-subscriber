@@ -1,5 +1,5 @@
 /blocks-concurrent-subscriber
 /vendor
 /pipeline.json
-/config.json
+/config*.json
 /pkg

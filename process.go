@@ -23,30 +23,39 @@ type MessageStore interface {
 }
 
 type Process struct {
-	agentApi     AgentApi
-	subscriber   MessageSubscriber
-	messageStore MessageStore
-	patterns     Patterns
+	agentApi      AgentApi
+	subscriptions []*Subscription
+	subscriber    MessageSubscriber
+	messageStore  MessageStore
+	patterns      Patterns
 }
 
 type Subscription struct {
-	PipelineID string `json:"pipeline_id"`
+	PipelineID string `json:"pipeline_id,omitempty"`
 	Pipeline   string `json:"pipeline"`
 	Name       string `json:"subscription"`
 	isOpened   func() (bool, error)
 }
 
 func (p *Process) execute(ctx context.Context) error {
-	subscriptions, err := p.agentApi.getSubscriptions(ctx)
-	if err != nil {
-		switch err.(type) {
-		case *InvalidHttpResponse:
-			return nil
-		default:
-			return err
-		}
+	targets := []*Subscription{}
+	if p.subscriptions != nil {
+		targets = append(targets, p.subscriptions...)
 	}
-	for _, sub := range subscriptions {
+	if p.agentApi != nil {
+		subsFromAgent, err := p.agentApi.getSubscriptions(ctx)
+		if err != nil {
+			switch err.(type) {
+			case *InvalidHttpResponse:
+				return nil
+			default:
+				return err
+			}
+		}
+		targets = append(targets, subsFromAgent...)
+	}
+	log.WithFields(log.Fields{"subscriptions": targets}).Debugln("Pulling")
+	for _, sub := range targets {
 		p.pullAndSave(ctx, sub)
 	}
 	return nil

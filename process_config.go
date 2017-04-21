@@ -10,13 +10,13 @@ import (
 )
 
 type ProcessConfig struct {
-	Datasource     string     `json:"datasource"`
-	AgentRootUrl   string     `json:"agent-root-url"`
-	AgentRootToken string     `json:"agent-root-token"`
-	MessagePerPull int64      `json:"message-per-pull"`
-	Interval       int        `json:"interval"`
-	LogLevel       string     `json:"log-level"`
-	Patterns       []*Pattern `json:"patterns"`
+	Datasource     string          `json:"datasource"`
+	Agent          *AgentConfig    `json:"agent,omitempty"`
+	Subscriptions  []*Subscription `json:"subscriptions,omitempty"`
+	MessagePerPull int64           `json:"message-per-pull"`
+	Interval       int             `json:"interval"`
+	LogLevel       string          `json:"log-level"`
+	Patterns       []*Pattern      `json:"patterns"`
 }
 
 func LoadProcessConfig(path string) (*ProcessConfig, error) {
@@ -46,12 +46,24 @@ func LoadProcessConfig(path string) (*ProcessConfig, error) {
 		return nil, err
 	}
 
-	if res.LogLevel == "" {
-		res.LogLevel = "info"
+	if res.Subscriptions != nil {
+		for _, sub := range res.Subscriptions {
+			sub.isOpened = func() (bool, error) {
+				return true, nil
+			}
+		}
 	}
 
 	if res.MessagePerPull == 0 {
 		res.MessagePerPull = 10
+	}
+
+	if res.Interval == 0 {
+		res.Interval = 10
+	}
+
+	if res.LogLevel == "" {
+		res.LogLevel = "info"
 	}
 
 	return &res, nil
