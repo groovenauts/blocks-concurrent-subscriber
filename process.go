@@ -23,11 +23,11 @@ type MessageStore interface {
 }
 
 type Process struct {
-	agentApi     AgentApi
+	agentApi      AgentApi
 	subscriptions []*Subscription
-	subscriber   MessageSubscriber
-	messageStore MessageStore
-	patterns     Patterns
+	subscriber    MessageSubscriber
+	messageStore  MessageStore
+	patterns      Patterns
 }
 
 type Subscription struct {
