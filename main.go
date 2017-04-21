@@ -61,15 +61,20 @@ func executeCommand(c *cli.Context) error {
 	}
 	defer cb()
 
-	agentClient := &DefaultAgentClient{
-		config: config.Agent,
+	var agentClient AgentApi
+	if config.Agent != nil {
+		agentClient = &DefaultAgentClient{
+			config: config.Agent,
+		}
 	}
 	for {
 		p := &Process{
-			agentApi:     agentClient,
 			subscriber:   pubsubSubscriber,
 			messageStore: store,
 			patterns:     config.Patterns,
+		}
+		if agentClient != nil {
+			p.agentApi = agentClient
 		}
 		p.execute(ctx)
 
