@@ -1,0 +1,27 @@
+{
+  "datasource": "root:@/database1?parseTime=true",
+  "subscriptions": [
+    {
+      "pipeline": "pipeline1",
+      "subscription": "projects/proj-dummy-999/subscriptions/pipeline1-progress-subscription"
+    },
+    {
+      "pipeline": "pipeline2",
+      "subscription": "projects/proj-dummy-999/subscriptions/pipeline2-progress-subscription"
+    }
+  ],
+  "message-per-pull": 100,
+  "interval": 10,
+  "log-level": "debug",
+  "patterns": [
+    {
+      "completed": "true",
+      "command": ["bin/rails", "r", "Model.complete('%{job_message_id}')"]
+    },
+    {
+      "level": "fatal",
+      "completed": "false",
+      "command": ["bin/rails", "r", "Model.fatalError(%{job_message_id}, '%{data}')"]
+    }
+  ]
+}

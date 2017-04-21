@@ -12,6 +12,7 @@ import (
 type ProcessConfig struct {
 	Datasource     string     `json:"datasource"`
 	Agent          *AgentConfig `json:"agent,omitempty"`
+	Subscriptions  []*Subscription `json:"subscriptions,omitempty"`
 	MessagePerPull int64      `json:"message-per-pull"`
 	Interval       int        `json:"interval"`
 	LogLevel       string     `json:"log-level"`
@@ -43,6 +44,14 @@ func LoadProcessConfig(path string) (*ProcessConfig, error) {
 	err = json.Unmarshal(buf.Bytes(), &res)
 	if err != nil {
 		return nil, err
+	}
+
+	if res.Subscriptions != nil {
+		for _, sub := range res.Subscriptions {
+			sub.isOpened = func() (bool, error) {
+				return true, nil
+			}
+		}
 	}
 
 	if res.LogLevel == "" {
