@@ -31,7 +31,7 @@ type Process struct {
 }
 
 type Subscription struct {
-	PipelineID string `json:"pipeline_id"`
+	PipelineID string `json:"pipeline_id,omitempty"`
 	Pipeline   string `json:"pipeline"`
 	Name       string `json:"subscription"`
 	isOpened   func() (bool, error)
@@ -54,6 +54,7 @@ func (p *Process) execute(ctx context.Context) error {
 		}
 		targets = append(targets, subsFromAgent...)
 	}
+	log.WithFields(log.Fields{"subscriptions": targets}).Debugln("Pulling")
 	for _, sub := range targets {
 		p.pullAndSave(ctx, sub)
 	}
