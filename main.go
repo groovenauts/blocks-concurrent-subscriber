@@ -76,6 +76,9 @@ func executeCommand(c *cli.Context) error {
 		if agentClient != nil {
 			p.agentApi = agentClient
 		}
+		if config.Subscriptions != nil {
+			p.subscriptions = config.Subscriptions
+		}
 		p.execute(ctx)
 
 		time.Sleep(time.Duration(config.Interval) * time.Second)

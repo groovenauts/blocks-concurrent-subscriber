@@ -24,6 +24,7 @@ type MessageStore interface {
 
 type Process struct {
 	agentApi     AgentApi
+	subscriptions []*Subscription
 	subscriber   MessageSubscriber
 	messageStore MessageStore
 	patterns     Patterns
@@ -38,6 +39,9 @@ type Subscription struct {
 
 func (p *Process) execute(ctx context.Context) error {
 	targets := []*Subscription{}
+	if p.subscriptions != nil {
+		targets = append(targets, p.subscriptions...)
+	}
 	if p.agentApi != nil {
 		subsFromAgent, err := p.agentApi.getSubscriptions(ctx)
 		if err != nil {
