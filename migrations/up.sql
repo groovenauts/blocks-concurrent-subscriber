@@ -18,5 +18,6 @@ CREATE TABLE `pipeline_job_logs` (
   `completed` tinyint NOT NULL,
   `log_level` varchar(10) NOT NULL,
   `log_message` varchar(255) NOT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `index_pipeline_job_logs_on_publish_time` (`publish_time`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
