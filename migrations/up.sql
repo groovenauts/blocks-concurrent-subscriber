@@ -5,7 +5,8 @@ CREATE TABLE `pipeline_jobs` (
   `progress` int(11) NOT NULL,
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `index_pipeline_jobs_on_job_message_id` (`job_message_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `pipeline_job_logs` (
