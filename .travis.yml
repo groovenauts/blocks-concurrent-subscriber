@@ -21,3 +21,18 @@ before_script:
   - make check
 script:
   - go test
+before_deploy:
+  - make setup
+  - make build
+deploy:
+  provider: releases
+  api_key:
+    secure: bALyIitlApWkD9ymSugf3mZFdpmsv/GMppBn6IZUKzzBzNsP5L0XcfJh0jta3/oYf0E8PoPLKBlbjPFifn916noPdZGXDkeJSFwmOs4EEC90HCIGVb6q/2ia5jrDYYGB7IcmjyL9d6MNuHU4NUIkMwqzFIcnRuMt9son4nxfv0yhO+qyQjbkJUkJD69lfCf0NEYeM0o2NUu+IUPdAC8rDE+Q+NL1aOQNh/AwCYHHHN5yZpf88ijWiWbNpbyRIwdOPZo+SNPZSsYioru9fPhWmqhcKbehm0m7Hfxa99rWOTM9eKKRMCX2G4splBz2Noh7YLJX205Cj5rxeBEMsD9KSPpJK7ZuNn3PQbnDZomxdA6W/a5AWwCfDRSSpTNI2np5zQ/vEE5JPwC+e6hlD+RxJr82ohfyx14DWxJcabU2wR2l/A+Py/8Q7r2eLuQZr7YvQBRZvL3vIUXgARlqh1zcJaivxmc6jBbMt5zYJOEHulkmnp31aASxd7uuz5GgHb3mafbzj114Wdsp3m0TTNdOxxcb4ngiDfTDl70WuGJcIxNhEqqCUNg1OfrBr5O/9fVdvWev9EIZ46q54MHQu8aeUrL/bAYCEHo2zXiW7N1IhQwzJPYNpCsUoPli9Jm6x0I0XEZ0tP83+u3PY2PQvMMCnDmSCZwp1v4sIBrzkgCD68s=
+  file:
+    - pkg/blocks-concurrent-subscriber_darwin_amd64
+    - pkg/blocks-concurrent-subscriber_linux_amd64
+  skip_cleanup: true
+  on:
+    repo: groovenauts/blocks-concurrent-subscriber
+    tags: true
+
