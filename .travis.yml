@@ -22,6 +22,7 @@ before_script:
 script:
   - go test
 before_deploy:
+  - make setup
   - make build
 deploy:
   provider: releases
