@@ -81,3 +81,16 @@ $ blocks-concurrent-subscriber -c config.json
   ]
 }
 ```
+
+## Docker image
+
+Docker image [groovenauts/blocks-concurrent-subscriber](https://hub.docker.com/r/groovenauts/blocks-concurrent-subscriber) is available.
+
+```shell
+docker pull groovenauts/blocks-concurrent-subscriber:${TAG}
+docker run -v /path/to/config.json:/config.json groovenauts/blocks-concurrent-subscriber:${TAG} /blocks-concurrent-subscriber -c /config.json
+```
+
+About available `${TAG}`, see https://hub.docker.com/r/groovenauts/blocks-concurrent-subscriber/tags/
+
+
