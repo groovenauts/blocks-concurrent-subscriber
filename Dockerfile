@@ -1,6 +1,6 @@
 FROM debian:jessie
 
-ARG version=v0.2.0
+ARG version=v0.2.1
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends ca-certificates && \
