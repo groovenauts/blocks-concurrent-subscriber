@@ -36,6 +36,8 @@ deploy:
       repo: groovenauts/blocks-concurrent-subscriber
       tags: true
   - provider: script
+    # To download release assets (pre-built binary) in Docker Hub,
+    # Docker Hub automated build should be triggered after `provider: releases`
     script: scripts/release-docker-image.sh
     on:
       repo: groovenauts/blocks-concurrent-subscriber
