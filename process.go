@@ -54,7 +54,6 @@ func (p *Process) execute(ctx context.Context) error {
 		}
 		targets = append(targets, subsFromAgent...)
 	}
-	log.WithFields(log.Fields{"subscriptions": targets}).Debugln("Pulling")
 	for _, sub := range targets {
 		p.pullAndSave(ctx, sub)
 	}

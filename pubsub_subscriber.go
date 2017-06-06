@@ -60,6 +60,7 @@ func (ps *PubsubSubscriber) subscribe(ctx context.Context, subscription *Subscri
 		ReturnImmediately: false,
 		MaxMessages:       ps.MessagePerPull,
 	}
+	log.WithFields(log.Fields{"subscription": subscription.Name}).Debugln("Pulling")
 	res, err := ps.puller.Pull(subscription.Name, pullRequest)
 	if err != nil {
 		log.Errorf("Failed to pull: [%T] %v\n", err, err)
