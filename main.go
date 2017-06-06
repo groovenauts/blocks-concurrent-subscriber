@@ -39,6 +39,11 @@ func executeCommand(c *cli.Context) error {
 		os.Exit(1)
 	}
 
+	formatter := new(log.TextFormatter)
+	formatter.TimestampFormat = "2006-01-02 15:04:05 -0700"
+	formatter.FullTimestamp = true
+	log.SetFormatter(formatter)
+
 	level, err := log.ParseLevel(config.LogLevel)
 	if err != nil {
 		fmt.Printf("Invalid log level %v cause of %v\n", config.LogLevel, err)
