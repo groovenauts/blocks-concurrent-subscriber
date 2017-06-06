@@ -66,6 +66,7 @@ func (ps *PubsubSubscriber) subscribe(ctx context.Context, subscription *Subscri
 		log.Errorf("Failed to pull: [%T] %v\n", err, err)
 		return err
 	}
+	log.WithFields(log.Fields{"subscription": subscription.Name}).Debugln("Pulled successfully")
 	for _, receivedMessage := range res.ReceivedMessages {
 		err := ps.processProgressNotification(ctx, subscription, receivedMessage, f)
 		if err != nil {
