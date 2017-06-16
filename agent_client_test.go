@@ -37,3 +37,20 @@ func TestGetSubscriptions(t *testing.T) {
 	assert.Equal(t, "pipeline01", sub.Pipeline)
 	assert.Equal(t, "pipeline01-progress-subscription", sub.Name)
 }
+
+func TestConvertToSubscriptionPointerArray(t *testing.T) {
+	ctx := context.Background()
+	s1 := Subscription{ Name: "sub1"}
+	s2 := Subscription{ Name: "sub2" }
+	s3 := Subscription{ Name: "sub3" }
+	subscriptions := []Subscription{s1, s2, s3}
+
+	ac := &DefaultAgentClient{}
+
+	res := ac.convertToSubscriptionPointerArray(ctx, subscriptions)
+	assert.Equal(t, len(subscriptions), len(res))
+
+	assert.Equal(t, "sub1", res[0].Name)
+	assert.Equal(t, "sub2", res[1].Name)
+	assert.Equal(t, "sub3", res[2].Name)
+}
