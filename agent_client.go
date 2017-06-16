@@ -76,8 +76,8 @@ func (ac *DefaultAgentClient) convertToSubscriptionPointerArray(ctx context.Cont
 	for _, s := range subscriptions {
 		sub := &Subscription{
 			PipelineID: s.PipelineID,
-			Pipeline  : s.Pipeline,
-			Name      : s.Name,
+			Pipeline:   s.Pipeline,
+			Name:       s.Name,
 		}
 		sub.isOpened = func() (bool, error) {
 			st, err := ac.getPipelineStatus(ctx, sub.PipelineID)

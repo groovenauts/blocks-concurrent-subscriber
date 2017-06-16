@@ -40,9 +40,9 @@ func TestGetSubscriptions(t *testing.T) {
 
 func TestConvertToSubscriptionPointerArray(t *testing.T) {
 	ctx := context.Background()
-	s1 := Subscription{ Name: "sub1"}
-	s2 := Subscription{ Name: "sub2" }
-	s3 := Subscription{ Name: "sub3" }
+	s1 := Subscription{Name: "sub1"}
+	s2 := Subscription{Name: "sub2"}
+	s3 := Subscription{Name: "sub3"}
 	subscriptions := []Subscription{s1, s2, s3}
 
 	ac := &DefaultAgentClient{}
