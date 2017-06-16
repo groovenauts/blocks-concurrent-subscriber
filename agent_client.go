@@ -59,6 +59,10 @@ func (ac *DefaultAgentClient) getSubscriptions(ctx context.Context) ([]*Subscrip
 		return nil, err
 	}
 
+	return ac.convertToSubscriptionPointerArray(ctx, subscriptions), nil
+}
+
+func (ac *DefaultAgentClient) convertToSubscriptionPointerArray(ctx context.Context, subscriptions []Subscription) []*Subscription {
 	for idx, sub := range subscriptions {
 		fields := log.Fields{
 			"PipelineID": sub.PipelineID,
@@ -90,7 +94,7 @@ func (ac *DefaultAgentClient) getSubscriptions(ctx context.Context) ([]*Subscrip
 		log.WithFields(fields).Debugf("Client getSubscriptions result %v\n", idx)
 	}
 
-	return result, nil
+	return result
 }
 
 func (ac *DefaultAgentClient) getPipelineStatus(ctx context.Context, id string) (int, error) {
