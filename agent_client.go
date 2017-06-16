@@ -59,17 +59,37 @@ func (ac *DefaultAgentClient) getSubscriptions(ctx context.Context) ([]*Subscrip
 		return nil, err
 	}
 
+	for idx, sub := range subscriptions {
+		fields := log.Fields{
+			"PipelineID": sub.PipelineID,
+			"Pipeline":   sub.Pipeline,
+			"Name":       sub.Name,
+		}
+		log.WithFields(fields).Debugf("Client Recceived Subscription %v\n", idx)
+	}
+
 	result := []*Subscription{}
 	for _, subscription := range subscriptions {
-		subscription.isOpened = func() (bool, error) {
-			st, err := ac.getPipelineStatus(ctx, subscription.PipelineID)
+		sub := &subscription
+		sub.isOpened = func() (bool, error) {
+			st, err := ac.getPipelineStatus(ctx, sub.PipelineID)
 			if err != nil {
 				return false, err
 			}
 			return st == 4, nil
 		}
-		result = append(result, &subscription)
+		result = append(result, sub)
 	}
+
+	for idx, sub := range result {
+		fields := log.Fields{
+			"PipelineID": sub.PipelineID,
+			"Pipeline":   sub.Pipeline,
+			"Name":       sub.Name,
+		}
+		log.WithFields(fields).Debugf("Client getSubscriptions result %v\n", idx)
+	}
+
 	return result, nil
 }
 
