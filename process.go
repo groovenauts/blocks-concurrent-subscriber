@@ -54,6 +54,14 @@ func (p *Process) execute(ctx context.Context) error {
 		}
 		targets = append(targets, subsFromAgent...)
 	}
+	for idx, sub := range targets {
+		fields := log.Fields{
+			"PipelineID": sub.PipelineID,
+			"Pipeline":   sub.Pipeline,
+			"Name":       sub.Name,
+		}
+		log.WithFields(fields).Debugf("Received Subscription %v\n", idx)
+	}
 	for _, sub := range targets {
 		p.pullAndSave(ctx, sub)
 	}
@@ -61,10 +69,19 @@ func (p *Process) execute(ctx context.Context) error {
 }
 
 func (p *Process) pullAndSave(ctx context.Context, subscription *Subscription) error {
+	fields := log.Fields{
+		"PipelineID": subscription.PipelineID,
+		"Pipeline":   subscription.Pipeline,
+		"Name":       subscription.Name,
+	}
+	log.WithFields(fields).Debugln("Subscribing...")
 	err := p.subscriber.subscribe(ctx, subscription, func(recvMsg *pubsub.ReceivedMessage) error {
 		m := recvMsg.Message
 
-		fields := log.Fields{}
+		fields := log.Fields{
+			"MessageId":   m.MessageId,
+			"PublishTime": m.PublishTime,
+		}
 		for k, v := range m.Attributes {
 			fields[k] = v
 		}
