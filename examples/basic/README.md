@@ -53,9 +53,10 @@ Don't forget to replace `[Your Pipeline name]` and `[Your GCP Project ID]`
 ### Send a request to create a new pipeline
 
 ```
+$ export ORG_ID="[the organization ID you got before]"
 $ export TOKEN="[the token you got before]"
 $ export AEHOST="[the host name you deployed]"
-$ curl -v -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' -X POST http://$AEHOST/pipelines --data @pipeline.json
+$ curl -v -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' -X POST http://$AEHOST/orgs/$ORG_ID/pipelines --data @pipeline.json
 ```
 
 ## Setup MySQL database
