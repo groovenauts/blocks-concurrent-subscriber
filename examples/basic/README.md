@@ -39,7 +39,7 @@ $ cd blocks-concurrent-subscriber
   "name":"[Your Pipeline name]",
   "project_id":"[Your GCP Project ID]",
   "zone":"us-central1-f",
-  "source_image":"https://www.googleapis.com/compute/v1/projects/google-containers/global/images/gci-stable-55-8872-76-0",
+  "source_image":"https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/family/cos-stable",
   "machine_type":"f1-micro",
   "target_size":1,
   "container_size":1,
