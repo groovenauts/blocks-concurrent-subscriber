@@ -2,7 +2,7 @@
 
 ## Overview
 
-1. Setup [blocks-batch-agent](https://github.com/groovenauts/blocks-concurrent-batch-agent)
+1. Setup [blocks-concurrent-batch-agent](https://github.com/groovenauts/blocks-concurrent-batch-agent)
 1. Create a new pipeline
 1. Setup MySQL database
 1. Launch `blocks-concurrent-subscriber`
@@ -26,9 +26,9 @@ $ cd blocks-concurrent-subscriber
 ```
 
 
-## Setup [blocks-batch-agent](https://github.com/groovenauts/blocks-concurrent-batch-agent)
+## Setup [blocks-concurrent-batch-agent](https://github.com/groovenauts/blocks-concurrent-batch-agent)
 
-1. Deploy [blocks-batch-agent](https://github.com/groovenauts/blocks-concurrent-batch-agent) to appengine by following https://github.com/groovenauts/blocks-concurrent-batch-agent#deploy-to-appengine
+1. Deploy [blocks-concurrent-batch-agent](https://github.com/groovenauts/blocks-concurrent-batch-agent) to appengine by following https://github.com/groovenauts/blocks-concurrent-batch-agent#deploy-to-appengine
 
 ## Create a new pipeline
 
