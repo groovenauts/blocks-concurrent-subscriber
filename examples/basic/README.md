@@ -3,6 +3,8 @@
 ## Overview
 
 1. Setup [blocks-concurrent-batch-agent](https://github.com/groovenauts/blocks-concurrent-batch-agent)
+    1. deploy blocks-concurrent-batch-agent
+    1. Create your organization on your blocks-concurrent-batch-agent
 1. Create a new pipeline
 1. Setup MySQL database
 1. Launch `blocks-concurrent-subscriber`
@@ -28,7 +30,14 @@ $ cd blocks-concurrent-subscriber
 
 ## Setup [blocks-concurrent-batch-agent](https://github.com/groovenauts/blocks-concurrent-batch-agent)
 
-1. Deploy [blocks-concurrent-batch-agent](https://github.com/groovenauts/blocks-concurrent-batch-agent) to appengine by following https://github.com/groovenauts/blocks-concurrent-batch-agent#deploy-to-appengine
+### Deploy [blocks-concurrent-batch-agent](https://github.com/groovenauts/blocks-concurrent-batch-agent)
+
+1. Follow https://github.com/groovenauts/blocks-concurrent-batch-agent/blob/master/README.md#deploy-to-appengine
+
+### Create your organization on your blocks-concurrent-batch-agent
+
+1. Follow https://github.com/groovenauts/blocks-concurrent-batch-agent/blob/master/README.md#get-token-on-browser
+    - Replace `http://localhost:8080` to your URL on GAE
 
 ## Create a new pipeline
 
