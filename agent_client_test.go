@@ -11,7 +11,7 @@ import (
 	"golang.org/x/net/context"
 )
 
-type DummyHttp struct{
+type DummyHttp struct {
 	reqPath string
 }
 
@@ -29,9 +29,9 @@ func TestGetSubscriptions(t *testing.T) {
 	ac := &DefaultAgentClient{
 		httpRequester: dh,
 		config: &AgentConfig{
-			RootUrl: "http://somewhere",
+			RootUrl:      "http://somewhere",
 			Organization: "org1",
-			Token:   "DUMMY-TOKEN",
+			Token:        "DUMMY-TOKEN",
 		},
 	}
 	ctx := context.Background()

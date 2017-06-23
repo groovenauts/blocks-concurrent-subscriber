@@ -33,9 +33,9 @@ func (e *InvalidPipeline) Error() string {
 }
 
 type AgentConfig struct {
-	RootUrl string `json:"root-url"`
+	RootUrl      string `json:"root-url"`
 	Organization string `json:"organization"`
-	Token   string `json:"token"`
+	Token        string `json:"token"`
 }
 
 type DefaultAgentClient struct {
