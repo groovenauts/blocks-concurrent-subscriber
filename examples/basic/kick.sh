@@ -36,6 +36,6 @@ cmd="gcloud beta pubsub topics publish ${PIPELINE}-job-topic '' --attribute=${at
 echo $cmd
 msgid=`${cmd} | cut -f2 -d\'`
 
-cmd="mysql -u ${DB_USER} ${DB_NAME} -e \"INSERT INTO pipeline_jobs (pipeline, job_message_id, progress) VALUES ('${PIPELINE}', '${msgid}', 0);\""
+cmd="mysql -u ${DB_USER} ${DB_NAME} -e \"INSERT INTO pipeline_jobs (pipeline, job_message_id, progress, created_at, updated_at) VALUES ('${PIPELINE}', '${msgid}', 0, NOW(), NOW());\""
 echo $cmd
 eval ${cmd}
