@@ -90,8 +90,11 @@ $ mysql -u root blocks_subscriber_example1 < migrations/up.sql
 ```json
 {
   "datasource": "root:@/blocks_subscriber_example1?parseTime=true",
-  "agent-root-url": "[the token you got before]",
-  "agent-root-token": "[the host name you deployed]",
+  "agent": {
+    "root-url": "[the token you got before]",
+    "organization": "[the organization ID on blocks-concurrent-batch-agent]",
+    "token": "[the host name you deployed]"
+  },
   "interval": 10,
   "patterns": [
     {
