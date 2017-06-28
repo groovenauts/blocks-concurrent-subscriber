@@ -33,8 +33,9 @@ func (e *InvalidPipeline) Error() string {
 }
 
 type AgentConfig struct {
-	RootUrl string `json:"root-url"`
-	Token   string `json:"token"`
+	RootUrl      string `json:"root-url"`
+	Organization string `json:"organization"`
+	Token        string `json:"token"`
 }
 
 type DefaultAgentClient struct {
@@ -43,7 +44,7 @@ type DefaultAgentClient struct {
 }
 
 func (ac *DefaultAgentClient) getSubscriptions(ctx context.Context) ([]*Subscription, error) {
-	url := ac.config.RootUrl + "/pipelines/subscriptions"
+	url := ac.config.RootUrl + "/orgs/" + ac.config.Organization + "/pipelines/subscriptions"
 
 	var subscriptions []Subscription
 	err := ac.processRequest(ctx, url, func(body []byte, logAttrs log.Fields) error {

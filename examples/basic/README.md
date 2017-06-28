@@ -2,7 +2,9 @@
 
 ## Overview
 
-1. Setup [blocks-batch-agent](https://github.com/groovenauts/blocks-concurrent-batch-agent)
+1. Setup [blocks-concurrent-batch-agent](https://github.com/groovenauts/blocks-concurrent-batch-agent)
+    1. deploy blocks-concurrent-batch-agent
+    1. Create your organization on your blocks-concurrent-batch-agent
 1. Create a new pipeline
 1. Setup MySQL database
 1. Launch `blocks-concurrent-subscriber`
@@ -26,9 +28,16 @@ $ cd blocks-concurrent-subscriber
 ```
 
 
-## Setup [blocks-batch-agent](https://github.com/groovenauts/blocks-concurrent-batch-agent)
+## Setup [blocks-concurrent-batch-agent](https://github.com/groovenauts/blocks-concurrent-batch-agent)
 
-1. Deploy [blocks-batch-agent](https://github.com/groovenauts/blocks-concurrent-batch-agent) to appengine by following https://github.com/groovenauts/blocks-concurrent-batch-agent#deploy-to-appengine
+### Deploy [blocks-concurrent-batch-agent](https://github.com/groovenauts/blocks-concurrent-batch-agent)
+
+1. Follow https://github.com/groovenauts/blocks-concurrent-batch-agent/blob/master/README.md#deploy-to-appengine
+
+### Create your organization on your blocks-concurrent-batch-agent
+
+1. Follow https://github.com/groovenauts/blocks-concurrent-batch-agent/blob/master/README.md#get-token-on-browser
+    - Replace `http://localhost:8080` to your URL on GAE
 
 ## Create a new pipeline
 
@@ -39,7 +48,9 @@ $ cd blocks-concurrent-subscriber
   "name":"[Your Pipeline name]",
   "project_id":"[Your GCP Project ID]",
   "zone":"us-central1-f",
-  "source_image":"https://www.googleapis.com/compute/v1/projects/google-containers/global/images/gci-stable-55-8872-76-0",
+  "boot_disk": {
+    "source_image":"https://www.googleapis.com/compute/v1/projects/cos-cloud/global/images/family/cos-stable"
+  },
   "machine_type":"f1-micro",
   "target_size":1,
   "container_size":1,
@@ -53,9 +64,10 @@ Don't forget to replace `[Your Pipeline name]` and `[Your GCP Project ID]`
 ### Send a request to create a new pipeline
 
 ```
+$ export ORG_ID="[the organization ID you got before]"
 $ export TOKEN="[the token you got before]"
 $ export AEHOST="[the host name you deployed]"
-$ curl -v -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' -X POST http://$AEHOST/pipelines --data @pipeline.json
+$ curl -v -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' -X POST http://$AEHOST/orgs/$ORG_ID/pipelines --data @pipeline.json
 ```
 
 ## Setup MySQL database
@@ -78,8 +90,11 @@ $ mysql -u root blocks_subscriber_example1 < migrations/up.sql
 ```json
 {
   "datasource": "root:@/blocks_subscriber_example1?parseTime=true",
-  "agent-root-url": "[the token you got before]",
-  "agent-root-token": "[the host name you deployed]",
+  "agent": {
+    "root-url": "[the token you got before]",
+    "organization": "[the organization ID on blocks-concurrent-batch-agent]",
+    "token": "[the host name you deployed]"
+  },
   "interval": 10,
   "patterns": [
     {

@@ -11,9 +11,12 @@ import (
 	"golang.org/x/net/context"
 )
 
-type DummyHttp struct{}
+type DummyHttp struct {
+	reqPath string
+}
 
 func (dh *DummyHttp) Do(req *http.Request) (*http.Response, error) {
+	dh.reqPath = req.URL.Path
 	resp := `[{"pipeline":"pipeline01","subscription":"pipeline01-progress-subscription"}]`
 	return &http.Response{
 		StatusCode: 200,
@@ -22,16 +25,19 @@ func (dh *DummyHttp) Do(req *http.Request) (*http.Response, error) {
 }
 
 func TestGetSubscriptions(t *testing.T) {
+	dh := &DummyHttp{}
 	ac := &DefaultAgentClient{
-		httpRequester: &DummyHttp{},
+		httpRequester: dh,
 		config: &AgentConfig{
-			RootUrl: "http://somewhere",
-			Token:   "DUMMY-TOKEN",
+			RootUrl:      "http://somewhere",
+			Organization: "org1",
+			Token:        "DUMMY-TOKEN",
 		},
 	}
 	ctx := context.Background()
 	subscriptions, err := ac.getSubscriptions(ctx)
 	assert.NoError(t, err)
+	assert.Equal(t, "/orgs/org1/pipelines/subscriptions", dh.reqPath)
 	assert.Equal(t, 1, len(subscriptions))
 	sub := subscriptions[0]
 	assert.Equal(t, "pipeline01", sub.Pipeline)

@@ -28,6 +28,7 @@ $ blocks-concurrent-subscriber -c config.json
 | datasource | string | True     | String to connect your MySQL database like `root:@/database1?parseTime=true` |
 | agent      | map[string]string | False | Settings to work with [blocks-concurrent-batch-agent](https://github.com/groovenauts/blocks-concurrent-batch-agent) |
 | agent.root-url | string | True | The root URL to the blocks-concurrent-batch-agent to launch pipelines |
+| agent.organization | string | True | The organization ID on the blocks-concurrent-batch-agent to launch pipelines. See https://github.com/groovenauts/blocks-concurrent-batch-agent#get-token-on-browser for more detail. |
 | agent.token    | string | True | The access token to the blocks-concurrent-batch-agent to launch pipelines. See https://github.com/groovenauts/blocks-concurrent-batch-agent#get-token-on-browser for more detail. |
 | subscriptions | []map[string]string | False | Array of subscription setting |
 | subscriptions[] | map[string]string | False | subscription setting |
@@ -53,6 +54,7 @@ $ blocks-concurrent-subscriber -c config.json
   "datasource": "root:@/database1?parseTime=true",
   "agent": {
     "root-url": "https://blocks-concurrent-batch-agent-somewhere.com",
+    "organization": "organization1",
     "token": "password1"
   },
   "subscriptions": [
