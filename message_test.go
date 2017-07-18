@@ -8,10 +8,10 @@ import (
 
 func TestMessageLoad(t *testing.T) {
 	raw1 := map[string]string{
-		"app_id": "88047337842272",
-		"level":          "info",
-		"progress":       "2",
-		"completed":      "false",
+		"app_id":    "88047337842272",
+		"level":     "info",
+		"progress":  "2",
+		"completed": "false",
 	}
 	msg := &Message{}
 	err := msg.load("pipelin1", raw1)
@@ -22,10 +22,10 @@ func TestMessageLoad(t *testing.T) {
 	assert.Equal(t, raw1["completed"], msg.completed)
 
 	raw2 := map[string]string{
-		"app_id": "88047337842272",
-		"level":          "info",
-		"progress":       "5",
-		"completed":      "true",
+		"app_id":    "88047337842272",
+		"level":     "info",
+		"progress":  "5",
+		"completed": "true",
 	}
 	msg = &Message{}
 	err = msg.load("pipelin1", raw2)
@@ -38,10 +38,10 @@ func TestMessageLoad(t *testing.T) {
 
 func TestMessageParamValues(t *testing.T) {
 	raw1 := map[string]string{
-		"app_id":         "123456",
-		"level":          "info",
-		"progress":       "2",
-		"completed":      "false",
+		"app_id":    "123456",
+		"level":     "info",
+		"progress":  "2",
+		"completed": "false",
 	}
 	msg := &Message{}
 	err := msg.load("pipelin1", raw1)

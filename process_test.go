@@ -26,8 +26,8 @@ func (ds *DummySubscriber) subscribe(ctx context.Context, subscription *Subscrip
 	msg := &pubsub.ReceivedMessage{
 		Message: &pubsub.PubsubMessage{
 			Attributes: map[string]string{
-				"app_id": "0123456789",
-				"progress":       "14",
+				"app_id":   "0123456789",
+				"progress": "14",
 			},
 			PublishTime: time.Now().Format(time.RFC3339),
 		},
