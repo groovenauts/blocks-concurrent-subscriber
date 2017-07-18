@@ -26,7 +26,7 @@ func (ds *DummySubscriber) subscribe(ctx context.Context, subscription *Subscrip
 	msg := &pubsub.ReceivedMessage{
 		Message: &pubsub.PubsubMessage{
 			Attributes: map[string]string{
-				"job_message_id": "0123456789",
+				"app_id": "0123456789",
 				"progress":       "14",
 			},
 			PublishTime: time.Now().Format(time.RFC3339),
@@ -41,8 +41,8 @@ func (ds *DummyStore) save(ctx context.Context, msg *Message, f func() error) er
 	// if "pipeline01" != pipeline {
 	// 	return fmt.Errorf("pipeline should be pipeline01 but was %v", pipeline)
 	// }
-	if "0123456789" != msg.attributes["job_message_id"] {
-		return fmt.Errorf("job_message_id should be 0123456789 but was %v", msg.attributes["job_message_id"])
+	if "0123456789" != msg.attributes["app_id"] {
+		return fmt.Errorf("app_id should be 0123456789 but was %v", msg.attributes["app_id"])
 	}
 	if 14 != msg.progress {
 		return fmt.Errorf("progress should be 14 but was %v", msg.progress)

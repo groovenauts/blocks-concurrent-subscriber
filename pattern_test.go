@@ -38,7 +38,7 @@ func TestPatternsExecute(t *testing.T) {
 				level:       "info",
 				data:        "SUCCESS",
 				attributes: map[string]string{
-					"job_message_id": "test-msg1",
+					"app_id": "test-msg1",
 				},
 			},
 			stdout: "COMPLETED SUCCESS",
@@ -52,7 +52,7 @@ func TestPatternsExecute(t *testing.T) {
 				level:       "fatal",
 				data:        "panic!",
 				attributes: map[string]string{
-					"job_message_id": "test-msg2",
+					"app_id": "test-msg2",
 				},
 			},
 			stdout: "FATAL panic!",
@@ -66,7 +66,7 @@ func TestPatternsExecute(t *testing.T) {
 				level:       "error",
 				data:        "",
 				attributes: map[string]string{
-					"job_message_id": "test-msg3",
+					"app_id": "test-msg3",
 				},
 			},
 			err:    "exit status 2",
@@ -81,7 +81,7 @@ func TestPatternsExecute(t *testing.T) {
 				level:       "debug",
 				data:        "Mismatch",
 				attributes: map[string]string{
-					"job_message_id": "",
+					"app_id": "",
 				},
 			},
 			stdout: "",

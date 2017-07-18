@@ -7,8 +7,8 @@ import (
 
 // Examples:
 //   INSERT INTO pipeline_job_logs \
-//       (pipeline, job_message_id, publish_time, progress, completed, log_level, log_message) \
-//       VALUES ($pipeline, $job_message_id, $publish_time, $progress, $completed, $log_level, $log_message)
+//       (pipeline, publish_time, progress, completed, log_level, log_message) \
+//       VALUES ($pipeline, $publish_time, $progress, $completed, $log_level, $log_message)
 //
 // 	UPDATE pipeline_jobs \
 //     SET progress = $progress, updated_at = $now \

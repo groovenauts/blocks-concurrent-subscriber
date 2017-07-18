@@ -23,17 +23,16 @@ func TestSqlTemplateSetupUpdate1(t *testing.T) {
 
 func TestSqlTemplateSetupInsert1(t *testing.T) {
 	src := "INSERT INTO pipeline_job_logs" +
-		" (pipeline, job_message_id, publish_time, progress, completed, log_level, log_message)" +
-		" VALUES ($pipeline, $job_message_id, $publish_time, $progress, $completed, $log_level, $log_message)"
+		" (pipeline, publish_time, progress, completed, log_level, log_message)" +
+		" VALUES ($pipeline, $publish_time, $progress, $completed, $log_level, $log_message)"
 	tmpl := &SqlTemplate{Source: src}
 	tmpl.Setup()
 
 	assert.Equal(t, "INSERT INTO pipeline_job_logs"+
-		" (pipeline, job_message_id, publish_time, progress, completed, log_level, log_message)"+
-		" VALUES (?, ?, ?, ?, ?, ?, ?)", tmpl.Body)
+		" (pipeline, publish_time, progress, completed, log_level, log_message)"+
+		" VALUES (?, ?, ?, ?, ?, ?)", tmpl.Body)
 	assert.Equal(t, []string{
 		"pipeline",
-		"job_message_id",
 		"publish_time",
 		"progress",
 		"completed",
