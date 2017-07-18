@@ -12,7 +12,7 @@ import (
 )
 
 type SqlStore struct {
-	db *sql.DB
+	db             *sql.DB
 	insertTemplate *SqlTemplate
 	updateTemplate *SqlTemplate
 }

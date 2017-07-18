@@ -38,7 +38,7 @@ func TestMessageLoad(t *testing.T) {
 
 func TestMessageParamValues(t *testing.T) {
 	raw1 := map[string]string{
-		"app_id": "123456",
+		"app_id":         "123456",
 		"job_message_id": "88047337842272",
 		"level":          "info",
 		"progress":       "2",

@@ -56,7 +56,7 @@ func TestProgressStoreSave(t *testing.T) {
 
 	store := &SqlStore{
 		updateTemplate: &SqlTemplate{
-			Body: "UPDATE pipeline_jobs SET progress = ?, updated_at = ? WHERE job_message_id = ? AND progress < ?",
+			Body:       "UPDATE pipeline_jobs SET progress = ?, updated_at = ? WHERE job_message_id = ? AND progress < ?",
 			Parameters: []string{"progress", "now", "job_message_id", "progress"},
 		},
 	}

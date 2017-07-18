@@ -83,15 +83,25 @@ func (m *Message) paramValues(names []string) []interface{} {
 
 func (m *Message) paramValue(name string) interface{} {
 	switch name {
-	case "pipeline":       return m.pipeline
-	case "job_message_id": return m.msg_id
-	case "progress":       return m.progress
-	case "publishTime":    return m.publishTime
-	case "completed":      return m.completed
-	case "completedInt":   return m.completedInt()
-	case "level":          return m.level
-	case "data":           return m.data
-	case "now":            return time.Now()
-	default:               return m.attributes[name]
+	case "pipeline":
+		return m.pipeline
+	case "job_message_id":
+		return m.msg_id
+	case "progress":
+		return m.progress
+	case "publishTime":
+		return m.publishTime
+	case "completed":
+		return m.completed
+	case "completedInt":
+		return m.completedInt()
+	case "level":
+		return m.level
+	case "data":
+		return m.data
+	case "now":
+		return time.Now()
+	default:
+		return m.attributes[name]
 	}
 }
