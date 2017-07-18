@@ -33,27 +33,16 @@ func (ss *SqlStore) setup(ctx context.Context, driver, datasource string) (func(
 }
 
 func (ss *SqlStore) save(ctx context.Context, pipeline string, msg *Message, f func() error) error {
-	logAttrs := log.Fields(msg.buildMap())
-
-	logAttrs["SQL"] = SQL_INSERT_LOGS
-	_, err := ss.db.Exec(SQL_INSERT_LOGS, pipeline, msg.msg_id, msg.publishTime, msg.progress, msg.completedInt(), msg.level, msg.data)
+	err := ss.insertLog(ctx, pipeline, msg)
 	if err != nil {
-		logAttrs["error"] = err
-		log.WithFields(logAttrs).Errorln("Failed to insert into pipeline_job_logs")
 		return err
 	}
-	log.WithFields(logAttrs).Debugln("Insert into pipeline_job_logs successfully")
-	delete(logAttrs, "SQL")
 
 	err = ss.transaction(func(tx *sql.Tx) error {
-		logAttrs["SQL"] = SQL_UPDATE_JOBS
-		_, err := tx.Exec(SQL_UPDATE_JOBS, msg.progress, time.Now(), msg.msg_id, msg.progress)
+		err := ss.updateJob(ctx, tx, pipeline, msg)
 		if err != nil {
-			logAttrs["error"] = err
-			log.WithFields(logAttrs).Errorln("Failed to update pipeline_jobs")
 			return err
 		}
-		log.WithFields(logAttrs).Debugln("Update pipeline_jobs successfully")
 
 		if f != nil {
 			err = f()
@@ -65,6 +54,33 @@ func (ss *SqlStore) save(ctx context.Context, pipeline string, msg *Message, f f
 	return err
 }
 
+func (ss *SqlStore) insertLog(ctx context.Context, pipeline string, msg *Message) error {
+	logAttrs := log.Fields(msg.buildMap())
+
+	logAttrs["SQL"] = SQL_INSERT_LOGS
+	_, err := ss.db.Exec(SQL_INSERT_LOGS, pipeline, msg.msg_id, msg.publishTime, msg.progress, msg.completedInt(), msg.level, msg.data)
+	if err != nil {
+		logAttrs["error"] = err
+		log.WithFields(logAttrs).Errorln("Failed to insert into pipeline_job_logs")
+		return err
+	}
+	log.WithFields(logAttrs).Debugln("Insert into pipeline_job_logs successfully")
+	return nil
+}
+
+func (ss *SqlStore) updateJob(ctx context.Context, tx *sql.Tx, pipeline string, msg *Message) error {
+	logAttrs := log.Fields(msg.buildMap())
+		logAttrs["SQL"] = SQL_UPDATE_JOBS
+		_, err := tx.Exec(SQL_UPDATE_JOBS, msg.progress, time.Now(), msg.msg_id, msg.progress)
+		if err != nil {
+			logAttrs["error"] = err
+			log.WithFields(logAttrs).Errorln("Failed to update pipeline_jobs")
+			return err
+		}
+		log.WithFields(logAttrs).Debugln("Update pipeline_jobs successfully")
+
+		return nil
+}
 
 // Use "err" for returned variable name in order to return the error on recover.
 func (ss *SqlStore) transaction(impl func(tx *sql.Tx) error) (err error) {
