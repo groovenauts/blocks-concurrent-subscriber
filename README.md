@@ -76,16 +76,20 @@ $ blocks-concurrent-subscriber -c config.json
   "patterns": [
     {
       "completed": "true",
-      "command": ["bin/rails", "r", "Model.complete('%{job_message_id}')"]
+      "command": ["bin/rails", "r", "Model.complete('%{app_id}')"]
     },
     {
       "level": "fatal",
       "completed": "false",
-      "command": ["bin/rails", "r", "Model.fatalError(%{job_message_id}, '%{data}')"]
+      "command": ["bin/rails", "r", "Model.fatalError(%app_id}, '%{data}')"]
     }
   ]
 }
 ```
+
+`app_id` is the ID to determine the record which is inserted by your application.
+You have to pass the ID to your job message to `blocks-concurrent-batch-agent` or `pipeline_job_topic`.
+
 
 ## Docker image
 
