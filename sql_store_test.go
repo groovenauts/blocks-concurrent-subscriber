@@ -84,7 +84,7 @@ func TestProgressStoreSave(t *testing.T) {
 	assert.Equal(t, pl.created_at.UnixNano(), pl.updated_at.UnixNano())
 
 	time.Sleep(1 * time.Second) // To make difference between updated_at and created_at
-	store.save(ctx, "pipeline01", msg, extra)
+	store.save(ctx, msg, extra)
 
 	pl, err = queryPipelineJob(db, "WHERE pipeline='pipeline01' AND job_message_id=?", msg.msg_id)
 	assert.NoError(t, err)
@@ -104,7 +104,7 @@ func TestProgressStoreSave(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, 4, pl.progress)
 
-	store.save(ctx, "pipeline01", msg, extra)
+	store.save(ctx, msg, extra)
 
 	pl, err = queryPipelineJob(db, "WHERE pipeline='pipeline01' AND job_message_id=?", msg.msg_id)
 	assert.NoError(t, err)

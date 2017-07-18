@@ -8,6 +8,7 @@ import (
 )
 
 type Message struct {
+	pipeline    string
 	msg_id      string
 	progress    int
 	publishTime time.Time
@@ -16,7 +17,8 @@ type Message struct {
 	data        string
 }
 
-func (m *Message) load(attrs map[string]string) error {
+func (m *Message) load(pipeline string, attrs map[string]string) error {
+	m.pipeline = pipeline
 	m.msg_id = attrs["job_message_id"]
 	m.level = attrs["level"]
 	m.completed = attrs["completed"]

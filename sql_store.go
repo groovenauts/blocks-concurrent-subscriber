@@ -32,14 +32,14 @@ func (ss *SqlStore) setup(ctx context.Context, driver, datasource string) (func(
 	return db.Close, nil
 }
 
-func (ss *SqlStore) save(ctx context.Context, pipeline string, msg *Message, f func() error) error {
-	err := ss.insertLog(ctx, pipeline, msg)
+func (ss *SqlStore) save(ctx context.Context, msg *Message, f func() error) error {
+	err := ss.insertLog(ctx, msg)
 	if err != nil {
 		return err
 	}
 
 	err = ss.transaction(func(tx *sql.Tx) error {
-		err := ss.updateJob(ctx, tx, pipeline, msg)
+		err := ss.updateJob(ctx, tx, msg)
 		if err != nil {
 			return err
 		}
@@ -54,11 +54,11 @@ func (ss *SqlStore) save(ctx context.Context, pipeline string, msg *Message, f f
 	return err
 }
 
-func (ss *SqlStore) insertLog(ctx context.Context, pipeline string, msg *Message) error {
+func (ss *SqlStore) insertLog(ctx context.Context, msg *Message) error {
 	logAttrs := log.Fields(msg.buildMap())
 
 	logAttrs["SQL"] = SQL_INSERT_LOGS
-	_, err := ss.db.Exec(SQL_INSERT_LOGS, pipeline, msg.msg_id, msg.publishTime, msg.progress, msg.completedInt(), msg.level, msg.data)
+	_, err := ss.db.Exec(SQL_INSERT_LOGS, msg.pipeline, msg.msg_id, msg.publishTime, msg.progress, msg.completedInt(), msg.level, msg.data)
 	if err != nil {
 		logAttrs["error"] = err
 		log.WithFields(logAttrs).Errorln("Failed to insert into pipeline_job_logs")
@@ -68,7 +68,7 @@ func (ss *SqlStore) insertLog(ctx context.Context, pipeline string, msg *Message
 	return nil
 }
 
-func (ss *SqlStore) updateJob(ctx context.Context, tx *sql.Tx, pipeline string, msg *Message) error {
+func (ss *SqlStore) updateJob(ctx context.Context, tx *sql.Tx, msg *Message) error {
 	logAttrs := log.Fields(msg.buildMap())
 	logAttrs["SQL"] = SQL_UPDATE_JOBS
 	_, err := tx.Exec(SQL_UPDATE_JOBS, msg.progress, time.Now(), msg.msg_id, msg.progress)

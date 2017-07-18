@@ -37,10 +37,10 @@ func (ds *DummySubscriber) subscribe(ctx context.Context, subscription *Subscrip
 
 type DummyStore struct{}
 
-func (ds *DummyStore) save(ctx context.Context, pipeline string, msg *Message, f func() error) error {
-	if "pipeline01" != pipeline {
-		return fmt.Errorf("pipeline should be pipeline01 but was %v", pipeline)
-	}
+func (ds *DummyStore) save(ctx context.Context, msg *Message, f func() error) error {
+	// if "pipeline01" != pipeline {
+	// 	return fmt.Errorf("pipeline should be pipeline01 but was %v", pipeline)
+	// }
 	if "0123456789" != msg.msg_id {
 		return fmt.Errorf("msg_id should be 0123456789 but was %v", msg.msg_id)
 	}

@@ -14,7 +14,7 @@ func TestMessageLoad(t *testing.T) {
 		"completed":      "false",
 	}
 	msg := &Message{}
-	err := msg.load(raw1)
+	err := msg.load("pipelin1", raw1)
 	assert.NoError(t, err)
 	assert.Equal(t, raw1["job_message_id"], msg.msg_id)
 	assert.Equal(t, raw1["level"], msg.level)
@@ -28,7 +28,7 @@ func TestMessageLoad(t *testing.T) {
 		"completed":      "true",
 	}
 	msg = &Message{}
-	err = msg.load(raw2)
+	err = msg.load("pipelin1", raw2)
 	assert.NoError(t, err)
 	assert.Equal(t, raw2["job_message_id"], msg.msg_id)
 	assert.Equal(t, raw2["level"], msg.level)
