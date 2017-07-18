@@ -50,8 +50,12 @@ func (m *Message) parse(publishTime string) error {
 	return nil
 }
 
+func (m *Message) completedBool() bool {
+	return m.completed == "true"
+}
+
 func (m *Message) completedInt() int {
-	if m.completed == "true" {
+	if m.completedBool() {
 		return 1
 	} else {
 		return 0
