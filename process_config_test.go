@@ -18,6 +18,8 @@ func TestLoadProcessConfig1(t *testing.T) {
 	if assert.NotNil(t, config.Patterns) {
 		assert.Equal(t, 2, len(config.Patterns))
 	}
+	assert.NotEmpty(t, config.Sql.InsertLogs)
+	assert.NotEmpty(t, config.Sql.UpdateJobs)
 }
 
 func TestLoadProcessConfig2(t *testing.T) {
@@ -38,4 +40,6 @@ func TestLoadProcessConfig2(t *testing.T) {
 	if assert.NotNil(t, config.Patterns) {
 		assert.Equal(t, 2, len(config.Patterns))
 	}
+	assert.NotEmpty(t, config.Sql.InsertLogs)
+	assert.NotEmpty(t, config.Sql.UpdateJobs)
 }
