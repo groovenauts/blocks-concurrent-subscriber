@@ -15,9 +15,11 @@ type Message struct {
 	completed   string
 	level       string
 	data        string
+	attributes  map[string]string
 }
 
 func (m *Message) load(pipeline string, attrs map[string]string) error {
+	m.attributes = attrs
 	m.pipeline = pipeline
 	m.msg_id = attrs["job_message_id"]
 	m.level = attrs["level"]
@@ -86,6 +88,6 @@ func (m *Message) paramValue(name string) interface{} {
 	case "level":          return m.level
 	case "data":           return m.data
 	case "now":            return time.Now()
+	default:               return m.attributes[name]
 	}
-	return nil
 }
