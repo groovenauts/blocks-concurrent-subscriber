@@ -63,14 +63,17 @@ func (m *Message) completedInt() int {
 }
 
 func (m *Message) buildMap() map[string]interface{} {
-	return map[string]interface{}{
-		"job_message_id": m.msg_id,
-		"progress":       m.progress,
-		"publishTime":    m.publishTime,
-		"completed":      m.completed,
-		"level":          m.level,
-		"data":           m.data,
+	r := map[string]interface{}{}
+	for k, v := range m.attributes {
+		r[k] = v
 	}
+	r["job_message_id"] = m.msg_id
+	r["progress"] = m.progress
+	r["publishTime"] = m.publishTime
+	r["completed"] = m.completed
+	r["level"] = m.level
+	r["data"] = m.data
+	return r
 }
 
 func (m *Message) paramValues(names []string) []interface{} {
