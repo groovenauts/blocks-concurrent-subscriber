@@ -26,6 +26,9 @@ $ blocks-concurrent-subscriber -c config.json
 | Field      | Type   | Required | Description |
 |------------|--------|----------|---------------|
 | datasource | string | True     | String to connect your MySQL database like `root:@/database1?parseTime=true` |
+| sql        | map[string]string | False | Settings to update pipeline_jobs or to insert pipeline_logs |
+| sql.update_jobs | string | False | SQL Statement to update pipeline_jobs |
+| sql.insert_logs | string | False | SQL Statement to insert pipeline_logs |
 | agent      | map[string]string | False | Settings to work with [blocks-concurrent-batch-agent](https://github.com/groovenauts/blocks-concurrent-batch-agent) |
 | agent.root-url | string | True | The root URL to the blocks-concurrent-batch-agent to launch pipelines |
 | agent.organization | string | True | The organization ID on the blocks-concurrent-batch-agent to launch pipelines. See https://github.com/groovenauts/blocks-concurrent-batch-agent#get-token-on-browser for more detail. |
