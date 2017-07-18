@@ -105,6 +105,10 @@ Check if `exec_sql` exists
 ```json
 {
   "datasource": "root:@/blocks_subscriber_example1?parseTime=true",
+  "sql": {
+    "update-jobs": "UPDATE pipeline_jobs SET progress = $progress, updated_at = $now WHERE id = $app_id AND progress < $progress",
+    "insert-logs": "INSERT INTO pipeline_job_logs (pipeline, publish_time, progress, completed, log_level, log_message) VALUES ($pipeline, $publishTime, $progress, $completed, $level, $data)"
+  },
   "agent": {
     "root-url": "[the token you got before]",
     "organization": "[the organization ID on blocks-concurrent-batch-agent]",

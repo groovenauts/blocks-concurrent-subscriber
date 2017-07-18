@@ -46,6 +46,23 @@ $ blocks-concurrent-subscriber -c config.json
 | patterns[].level | string | False | The condition to match with message `level` attribute. Match any message `level` attribute if blank |
 | patterns[].command | []string | The command and arguments when the conditions matches |
 
+### Variables in SQLs
+
+These SQLs allow to use variables which starts with `$`.
+You can use the following variables in SQLs.
+
+| Name | Type | Description |
+|------|-------|----------------|
+| pipeline | string | Pipeline name |
+| progress | int    | Progress reported from `blocks-gcs-proxy` |
+| publishTime | time.Time | The time published by `blocks-gcs-proxy` |
+| completed   | string    | `true` if the job on `blocks-gcs-proxy` is completed |
+| level       | string    | The level of the progress notification from `blocks-gcs-proxy` |
+| data        | string    | The data of the progress notification message from `blocks-gcs-proxy` |
+| now         | time.Time | The current time |
+| (other)     | string    | The attribute value fetched by Name |
+
+
 #### Attention!
 
 `datasource` must have `parseTime=true` option to parse datetime column value.
@@ -55,6 +72,10 @@ $ blocks-concurrent-subscriber -c config.json
 ```
 {
   "datasource": "root:@/database1?parseTime=true",
+  "sql": {
+    "update-jobs": "UPDATE pipeline_jobs SET progress = $progress, updated_at = $now WHERE id = $app_id AND progress < $progress",
+    "insert-logs": "INSERT INTO pipeline_job_logs (pipeline, publish_time, progress, completed, log_level, log_message) VALUES ($pipeline, $publishTime, $progress, $completed, $level, $data)"
+  },
   "agent": {
     "root-url": "https://blocks-concurrent-batch-agent-somewhere.com",
     "organization": "organization1",
