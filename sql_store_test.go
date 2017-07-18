@@ -54,7 +54,12 @@ func TestProgressStoreSave(t *testing.T) {
 
 	ctx := context.Background()
 
-	store := &SqlStore{}
+	store := &SqlStore{
+		updateTemplate: &SqlTemplate{
+			Body: "UPDATE pipeline_jobs SET progress = ?, updated_at = ? WHERE job_message_id = ? AND progress < ?",
+			Parameters: []string{"progress", "now", "job_message_id", "progress"},
+		},
+	}
 	cb, err := store.setup(ctx, "mysql", TEST_DATASOURCE)
 	if err != nil {
 		log.Fatalf("Failed to connect DB: %q. Please run `make testsetup`\n", TEST_DATASOURCE)

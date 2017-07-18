@@ -3,7 +3,6 @@ package main
 import (
 	"database/sql"
 	"runtime"
-	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 
@@ -12,13 +11,10 @@ import (
 	log "github.com/Sirupsen/logrus"
 )
 
-const (
-	SQL_UPDATE_JOBS = "UPDATE pipeline_jobs SET progress = ?, updated_at = ? WHERE job_message_id = ? AND progress < ?"
-	SQL_INSERT_LOGS = "INSERT INTO pipeline_job_logs (pipeline, job_message_id, publish_time, progress, completed, log_level, log_message) VALUES (?, ?, ?, ?, ?, ?, ?)"
-)
-
 type SqlStore struct {
 	db *sql.DB
+	insertTemplate *SqlTemplate
+	updateTemplate *SqlTemplate
 }
 
 func (ss *SqlStore) setup(ctx context.Context, driver, datasource string) (func() error, error) {
@@ -55,10 +51,12 @@ func (ss *SqlStore) save(ctx context.Context, msg *Message, f func() error) erro
 }
 
 func (ss *SqlStore) insertLog(ctx context.Context, msg *Message) error {
+	if ss.insertTemplate == nil {
+		return nil
+	}
 	logAttrs := log.Fields(msg.buildMap())
-
-	logAttrs["SQL"] = SQL_INSERT_LOGS
-	_, err := ss.db.Exec(SQL_INSERT_LOGS, msg.pipeline, msg.msg_id, msg.publishTime, msg.progress, msg.completedInt(), msg.level, msg.data)
+	logAttrs["SQL"] = ss.insertTemplate.Body
+	_, err := ss.db.Exec(ss.insertTemplate.Body, msg.paramValues(ss.insertTemplate.Parameters)...)
 	if err != nil {
 		logAttrs["error"] = err
 		log.WithFields(logAttrs).Errorln("Failed to insert into pipeline_job_logs")
@@ -69,16 +67,18 @@ func (ss *SqlStore) insertLog(ctx context.Context, msg *Message) error {
 }
 
 func (ss *SqlStore) updateJob(ctx context.Context, tx *sql.Tx, msg *Message) error {
+	if ss.updateTemplate == nil {
+		return nil
+	}
 	logAttrs := log.Fields(msg.buildMap())
-	logAttrs["SQL"] = SQL_UPDATE_JOBS
-	_, err := tx.Exec(SQL_UPDATE_JOBS, msg.progress, time.Now(), msg.msg_id, msg.progress)
+	logAttrs["SQL"] = ss.updateTemplate.Body
+	_, err := tx.Exec(ss.updateTemplate.Body, msg.paramValues(ss.updateTemplate.Parameters)...)
 	if err != nil {
 		logAttrs["error"] = err
 		log.WithFields(logAttrs).Errorln("Failed to update pipeline_jobs")
 		return err
 	}
 	log.WithFields(logAttrs).Debugln("Update pipeline_jobs successfully")
-
 	return nil
 }
 

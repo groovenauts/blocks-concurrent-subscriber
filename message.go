@@ -66,3 +66,26 @@ func (m *Message) buildMap() map[string]interface{} {
 		"data":           m.data,
 	}
 }
+
+func (m *Message) paramValues(names []string) []interface{} {
+	r := []interface{}{}
+	for _, name := range names {
+		r = append(r, m.paramValue(name))
+	}
+	return r
+}
+
+func (m *Message) paramValue(name string) interface{} {
+	switch name {
+	case "pipeline":       return m.pipeline
+	case "job_message_id": return m.msg_id
+	case "progress":       return m.progress
+	case "publishTime":    return m.publishTime
+	case "completed":      return m.completed
+	case "completedInt":   return m.completedInt()
+	case "level":          return m.level
+	case "data":           return m.data
+	case "now":            return time.Now()
+	}
+	return nil
+}
