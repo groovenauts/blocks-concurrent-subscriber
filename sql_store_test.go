@@ -75,15 +75,17 @@ func TestProgressStoreSave(t *testing.T) {
 		return nil
 	}
 	msg := &Message{
-		msg_id:      "jm01",
 		progress:    2,
 		publishTime: time.Now(),
 		completed:   "false",
 		level:       "info",
 		data:        "",
+		attributes: map[string]string{
+			"job_message_id": "jm01",
+		},
 	}
 
-	pl, err := queryPipelineJob(db, "WHERE pipeline='pipeline01' AND job_message_id=?", msg.msg_id)
+	pl, err := queryPipelineJob(db, "WHERE pipeline='pipeline01' AND job_message_id=?", msg.attributes["job_message_id"])
 	assert.NoError(t, err)
 	assert.Equal(t, 1, pl.progress)
 	assert.Equal(t, pl.created_at.UnixNano(), pl.updated_at.UnixNano())
@@ -91,27 +93,29 @@ func TestProgressStoreSave(t *testing.T) {
 	time.Sleep(1 * time.Second) // To make difference between updated_at and created_at
 	store.save(ctx, msg, extra)
 
-	pl, err = queryPipelineJob(db, "WHERE pipeline='pipeline01' AND job_message_id=?", msg.msg_id)
+	pl, err = queryPipelineJob(db, "WHERE pipeline='pipeline01' AND job_message_id=?", msg.attributes["job_message_id"])
 	assert.NoError(t, err)
 	assert.Equal(t, 2, pl.progress)
 	assert.NotEqual(t, pl.created_at.UnixNano(), pl.updated_at.UnixNano())
 
 	msg = &Message{
-		msg_id:      "jm04",
 		progress:    2,
 		publishTime: time.Now(),
 		completed:   "false",
 		level:       "info",
 		data:        "",
+		attributes: map[string]string{
+			"job_message_id": "jm04",
+		},
 	}
 
-	pl, err = queryPipelineJob(db, "WHERE pipeline='pipeline01' AND job_message_id=?", msg.msg_id)
+	pl, err = queryPipelineJob(db, "WHERE pipeline='pipeline01' AND job_message_id=?", msg.attributes["job_message_id"])
 	assert.NoError(t, err)
 	assert.Equal(t, 4, pl.progress)
 
 	store.save(ctx, msg, extra)
 
-	pl, err = queryPipelineJob(db, "WHERE pipeline='pipeline01' AND job_message_id=?", msg.msg_id)
+	pl, err = queryPipelineJob(db, "WHERE pipeline='pipeline01' AND job_message_id=?", msg.attributes["job_message_id"])
 	assert.NoError(t, err)
 	assert.Equal(t, 4, pl.progress)
 }

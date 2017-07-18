@@ -9,7 +9,6 @@ import (
 
 type Message struct {
 	pipeline    string
-	msg_id      string
 	progress    int
 	publishTime time.Time
 	completed   string
@@ -21,7 +20,6 @@ type Message struct {
 func (m *Message) load(pipeline string, attrs map[string]string) error {
 	m.attributes = attrs
 	m.pipeline = pipeline
-	m.msg_id = attrs["job_message_id"]
 	m.level = attrs["level"]
 	m.completed = attrs["completed"]
 	progress, err := strconv.Atoi(attrs["progress"])
@@ -67,7 +65,6 @@ func (m *Message) buildMap() map[string]interface{} {
 	for k, v := range m.attributes {
 		r[k] = v
 	}
-	r["job_message_id"] = m.msg_id
 	r["progress"] = m.progress
 	r["publishTime"] = m.publishTime
 	r["completed"] = m.completed
@@ -88,8 +85,6 @@ func (m *Message) paramValue(name string) interface{} {
 	switch name {
 	case "pipeline":
 		return m.pipeline
-	case "job_message_id":
-		return m.msg_id
 	case "progress":
 		return m.progress
 	case "publishTime":
