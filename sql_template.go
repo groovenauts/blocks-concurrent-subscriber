@@ -23,6 +23,15 @@ type SqlTemplate struct {
 
 var ParamRegexp = regexp.MustCompile(`\$[^\s\,\=\>\<\(\)]+`)
 
+func BuildSqlTemplate(src string) *SqlTemplate {
+	if src == "" {
+		return nil
+	}
+	t := &SqlTemplate{Source: src}
+	t.Setup()
+	return t
+}
+
 func (t *SqlTemplate) Setup() {
 	t.Parameters = []string{}
 	t.Body = t.Source
