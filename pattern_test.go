@@ -32,36 +32,42 @@ func TestPatternsExecute(t *testing.T) {
 	}{
 		{
 			msg: &Message{
-				msg_id:      "test-msg1",
 				progress:    5,
 				publishTime: time.Now(),
 				completed:   "true",
 				level:       "info",
 				data:        "SUCCESS",
+				attributes: map[string]string{
+					"app_id": "test-msg1",
+				},
 			},
 			stdout: "COMPLETED SUCCESS",
 			stderr: "",
 		},
 		{
 			msg: &Message{
-				msg_id:      "test-msg2",
 				progress:    2,
 				publishTime: time.Now(),
 				completed:   "false",
 				level:       "fatal",
 				data:        "panic!",
+				attributes: map[string]string{
+					"app_id": "test-msg2",
+				},
 			},
 			stdout: "FATAL panic!",
 			stderr: "",
 		},
 		{
 			msg: &Message{
-				msg_id:      "test-msg3",
 				progress:    3,
 				publishTime: time.Now(),
 				completed:   "false",
 				level:       "error",
 				data:        "",
+				attributes: map[string]string{
+					"app_id": "test-msg3",
+				},
 			},
 			err:    "exit status 2",
 			stdout: "",
@@ -69,12 +75,14 @@ func TestPatternsExecute(t *testing.T) {
 		},
 		{
 			msg: &Message{
-				msg_id:      "test-msg4",
 				progress:    1,
 				publishTime: time.Now(),
 				completed:   "false",
 				level:       "debug",
 				data:        "Mismatch",
+				attributes: map[string]string{
+					"app_id": "",
+				},
 			},
 			stdout: "",
 			stderr: "",

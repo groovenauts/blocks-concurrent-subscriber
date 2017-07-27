@@ -19,7 +19,7 @@ type MessageSubscriber interface {
 }
 
 type MessageStore interface {
-	save(ctx context.Context, pipeline string, msg *Message, f func() error) error
+	save(ctx context.Context, msg *Message, f func() error) error
 }
 
 type Process struct {
@@ -98,7 +98,7 @@ func (p *Process) pullAndSave(ctx context.Context, subscription *Subscription) e
 		log.WithFields(fields).Debugln("Message received")
 
 		msg := &Message{data: data}
-		err = msg.load(m.Attributes)
+		err = msg.load(subscription.Pipeline, m.Attributes)
 		if err != nil {
 			return err
 		}
@@ -109,7 +109,7 @@ func (p *Process) pullAndSave(ctx context.Context, subscription *Subscription) e
 
 		log.WithFields(log.Fields(msg.buildMap())).Debugln("Message parsed")
 
-		err = p.messageStore.save(ctx, subscription.Pipeline, msg, func() error {
+		err = p.messageStore.save(ctx, msg, func() error {
 			return p.patterns.execute(msg)
 		})
 		return err

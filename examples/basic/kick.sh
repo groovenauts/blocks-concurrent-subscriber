@@ -12,6 +12,8 @@ if [ $# -ne 2 ]; then
   exit 1
 fi
 
+set -ex
+
 cmd=$1
 
 case "$cmd" in
@@ -31,11 +33,10 @@ esac
 
 DB_USER=${DB_USERNAME:-root}
 DB_NAME=${DB_NAME:-blocks_subscriber_example1}
+TOPIC=projects/${PROJECT}/topics/${PIPELINE}-job-topic
 
-cmd="gcloud beta pubsub topics publish ${PIPELINE}-job-topic '' --attribute=${attribute}"
-echo $cmd
-msgid=`${cmd} | cut -f2 -d\'`
+job_id=`./exec_sql ${DB_USER}:@/${DB_NAME} "INSERT INTO pipeline_jobs (pipeline, progress, created_at, updated_at) VALUES ('pipeline01', 0, NOW(), NOW())"`
 
-cmd="mysql -u ${DB_USER} ${DB_NAME} -e \"INSERT INTO pipeline_jobs (pipeline, job_message_id, progress, created_at, updated_at) VALUES ('${PIPELINE}', '${msgid}', 0, NOW(), NOW());\""
-echo $cmd
-eval ${cmd}
+msgid=`gcloud beta pubsub topics publish ${TOPIC} '' --attribute=${attribute} --attribute=app_id=${job_id} | cut -f2 -d\'`
+
+rows=`./exec_sql ${DB_USER}:@/${DB_NAME} "UPDATE pipeline_jobs SET job_message_id = '${msgid}' WHERE id = ${job_id}"`

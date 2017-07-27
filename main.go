@@ -66,6 +66,11 @@ func executeCommand(c *cli.Context) error {
 	}
 	defer cb()
 
+	if config.Sql != nil {
+		store.insertTemplate = BuildSqlTemplate(config.Sql.InsertLogs)
+		store.updateTemplate = BuildSqlTemplate(config.Sql.UpdateJobs)
+	}
+
 	var agentClient AgentApi
 	if config.Agent != nil {
 		agentClient = &DefaultAgentClient{

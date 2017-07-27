@@ -1,5 +1,9 @@
 {
   "datasource": "root:@/database1?parseTime=true",
+  "sql": {
+    "update-jobs": "UPDATE pipeline_jobs SET progress = $progress, updated_at = $now WHERE id = $app_id AND progress < $progress",
+    "insert-logs": "INSERT INTO pipeline_job_logs (pipeline, publish_time, progress, completed, log_level, log_message) VALUES ($pipeline, $publishTime, $progress, $completed, $level, $data)"
+  },
   "agent": {
     "root-url": "https://blocks-concurrent-batch-agent-somewhere.com",
     "token": "password1"
@@ -10,12 +14,12 @@
   "patterns": [
     {
       "completed": "true",
-      "command": ["bin/rails", "r", "Model.complete('%{job_message_id}')"]
+      "command": ["bin/rails", "r", "Model.complete('%{app_id}')"]
     },
     {
       "level": "fatal",
       "completed": "false",
-      "command": ["bin/rails", "r", "Model.fatalError(%{job_message_id}, '%{data}')"]
+      "command": ["bin/rails", "r", "Model.fatalError(%{app_id}, '%{data}')"]
     }
   ]
 }

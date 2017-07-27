@@ -85,11 +85,30 @@ $ mysql -u root blocks_subscriber_example1 < migrations/up.sql
 
 ## Launch `blocks-concurrent-subscriber`
 
+### Change directory
+
+```bash
+$ examples/basic
+```
+
+### Compile exec_sql.go
+
+```bash
+$ go build exec_sql.go
+```
+
+Check if `exec_sql` exists
+
+
 ### Create a new config.json
 
 ```json
 {
   "datasource": "root:@/blocks_subscriber_example1?parseTime=true",
+  "sql": {
+    "update-jobs": "UPDATE pipeline_jobs SET progress = $progress, updated_at = $now WHERE id = $app_id AND progress < $progress",
+    "insert-logs": "INSERT INTO pipeline_job_logs (pipeline, publish_time, progress, completed, log_level, log_message) VALUES ($pipeline, $publishTime, $progress, $completed, $level, $data)"
+  },
   "agent": {
     "root-url": "[the token you got before]",
     "organization": "[the organization ID on blocks-concurrent-batch-agent]",
@@ -99,16 +118,16 @@ $ mysql -u root blocks_subscriber_example1 < migrations/up.sql
   "patterns": [
     {
       "completed": "true",
-      "command": ["examples/basic/recv.sh", "COMPLETED", "%{job_message_id}"]
+      "command": ["./recv.sh", "COMPLETED", "%{app_id}"]
     },
     {
       "level": "fatal",
       "completed": "false",
-      "command": ["examples/basic/recv.sh", "FATAL", "job_message_id: %{job_message_id}, msg: %{data}"]
+      "command": ["./recv.sh", "FATAL", "app_id: %{app_id}, msg: %{data}"]
     },
     {
       "level": "error",
-      "command": ["examples/basic/recv.sh", "ERROR", "job_message_id: %{job_message_id}, msg: %{data}"]
+      "command": ["./recv.sh", "ERROR", "app_id: %{app_id}, msg: %{data}"]
     }
   ]
 }
@@ -132,5 +151,5 @@ $ gsutil cp path/to/some/file gs://yourbucket/somewhere
 
 ```
 $ export PIPELINE=[[Your Pipeline name]]
-$ examples/basic/kick.sh "" gs://yourbucket/somewhere
+$ ./kick.sh "" gs://yourbucket/somewhere
 ```

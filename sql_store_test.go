@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	"os"
 	"os/exec"
 	"testing"
@@ -54,7 +55,12 @@ func TestProgressStoreSave(t *testing.T) {
 
 	ctx := context.Background()
 
-	store := &SqlStore{}
+	store := &SqlStore{
+		updateTemplate: &SqlTemplate{
+			Body:       "UPDATE pipeline_jobs SET progress = ?, updated_at = ? WHERE id = ? AND progress < ?",
+			Parameters: []string{"progress", "now", "app_id", "progress"},
+		},
+	}
 	cb, err := store.setup(ctx, "mysql", TEST_DATASOURCE)
 	if err != nil {
 		log.Fatalf("Failed to connect DB: %q. Please run `make testsetup`\n", TEST_DATASOURCE)
@@ -64,49 +70,57 @@ func TestProgressStoreSave(t *testing.T) {
 
 	db := store.db
 
+	// test_data is inserted by `make testfixtures`
+	jm01, err := queryPipelineJob(db, "WHERE pipeline='pipeline01' AND job_message_id=?", "jm01")
+	jm04, err := queryPipelineJob(db, "WHERE pipeline='pipeline01' AND job_message_id=?", "jm04")
+
 	extraCalled := false
 	extra := func() error {
 		extraCalled = true
 		return nil
 	}
 	msg := &Message{
-		msg_id:      "jm01",
 		progress:    2,
 		publishTime: time.Now(),
 		completed:   "false",
 		level:       "info",
 		data:        "",
+		attributes: map[string]string{
+			"app_id": fmt.Sprintf("%v", jm01.id),
+		},
 	}
 
-	pl, err := queryPipelineJob(db, "WHERE pipeline='pipeline01' AND job_message_id=?", msg.msg_id)
+	pl, err := queryPipelineJob(db, "WHERE pipeline='pipeline01' AND id=?", msg.attributes["app_id"])
 	assert.NoError(t, err)
 	assert.Equal(t, 1, pl.progress)
 	assert.Equal(t, pl.created_at.UnixNano(), pl.updated_at.UnixNano())
 
 	time.Sleep(1 * time.Second) // To make difference between updated_at and created_at
-	store.save(ctx, "pipeline01", msg, extra)
+	store.save(ctx, msg, extra)
 
-	pl, err = queryPipelineJob(db, "WHERE pipeline='pipeline01' AND job_message_id=?", msg.msg_id)
+	pl, err = queryPipelineJob(db, "WHERE pipeline='pipeline01' AND id=?", msg.attributes["app_id"])
 	assert.NoError(t, err)
 	assert.Equal(t, 2, pl.progress)
 	assert.NotEqual(t, pl.created_at.UnixNano(), pl.updated_at.UnixNano())
 
 	msg = &Message{
-		msg_id:      "jm04",
 		progress:    2,
 		publishTime: time.Now(),
 		completed:   "false",
 		level:       "info",
 		data:        "",
+		attributes: map[string]string{
+			"app_id": fmt.Sprintf("%v", jm04.id),
+		},
 	}
 
-	pl, err = queryPipelineJob(db, "WHERE pipeline='pipeline01' AND job_message_id=?", msg.msg_id)
+	pl, err = queryPipelineJob(db, "WHERE pipeline='pipeline01' AND id=?", msg.attributes["app_id"])
 	assert.NoError(t, err)
 	assert.Equal(t, 4, pl.progress)
 
-	store.save(ctx, "pipeline01", msg, extra)
+	store.save(ctx, msg, extra)
 
-	pl, err = queryPipelineJob(db, "WHERE pipeline='pipeline01' AND job_message_id=?", msg.msg_id)
+	pl, err = queryPipelineJob(db, "WHERE pipeline='pipeline01' AND id=?", msg.attributes["app_id"])
 	assert.NoError(t, err)
 	assert.Equal(t, 4, pl.progress)
 }

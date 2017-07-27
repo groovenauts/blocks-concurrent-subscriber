@@ -11,6 +11,7 @@ import (
 
 type ProcessConfig struct {
 	Datasource     string          `json:"datasource"`
+	Sql            *SqlConfig      `json:"sql"`
 	Agent          *AgentConfig    `json:"agent,omitempty"`
 	Subscriptions  []*Subscription `json:"subscriptions,omitempty"`
 	MessagePerPull int64           `json:"message-per-pull"`
